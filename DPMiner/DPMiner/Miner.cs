@@ -5,13 +5,10 @@ using System.Collections;
 
 namespace DPMiner
 {   
-	public interface PetryNet
-	{
-
-	}
+	
 	public interface ProcessMiner
 	{
-	 PetryNet Mine(int[][] log);
+	 IPetryNet Mine(int[][] log);
 
     }
 	public class AlphaMiner
@@ -21,6 +18,7 @@ namespace DPMiner
 		private List<Tuple<int,int>> preceders = new List<Tuple<int,int>>();
 		private List<Tuple<int,int>> parallels = new List<Tuple<int,int>>();
 		private List<Tuple<int,int>> choices = new List<Tuple<int,int>>();
+        private List<Tuple<int, int>> followers = new List<Tuple<int, int>>();
 		public AlphaMiner (int size)
 		{
 			this.size = size;

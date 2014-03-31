@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPMiner", "WindowsFormsApplication1\DPMiner.csproj", "{D0995CE1-028C-4499-98E4-8C5719BDF516}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPMiner", "DPMiner\DPMiner.csproj", "{D0995CE1-028C-4499-98E4-8C5719BDF516}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D0C99246-14DE-4504-87A2-1C806BC19A41}"
 	ProjectSection(SolutionItems) = preProject
-		WindowsFormsApplication1\Monad.dll = WindowsFormsApplication1\Monad.dll
+		WindowsFormsApplication1\Monad.dll = DPMiner\Monad.dll
 	EndProjectSection
 EndProject
 Global
