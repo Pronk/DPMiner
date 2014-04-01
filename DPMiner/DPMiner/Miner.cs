@@ -49,11 +49,21 @@ namespace DPMiner
 						relation[i,j] = Relationships.choice;
 				}
 		}
+		private List<Tuple<int,int>> Candidates()
+		{
+			for(int i=0;i<size;i++)
+			{
+			 List<int> parallels = new List<int>();
+			 for(int j=i+1; j<size;j++)
+			  if
+			}
+	
+		}
 	        public IPetriNet Mine( int[][] log)
 	        {
 	        	DigRelationships (log);
 	        	DigRelatios();
 						
-	   }
+	   	}
 	}
 }
