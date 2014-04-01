@@ -8,7 +8,7 @@ namespace DPMiner
 	
 	public interface ProcessMiner
 	{
-	 IPetryNet Mine(int[][] log);
+	 IPetriNet Mine(int[][] log);
 
     }
 	public class AlphaMiner
@@ -34,13 +34,26 @@ namespace DPMiner
 						relationship[trace[n],trace[n+1]]=true;
 				   
 		}
-		private void DigRelation(Relationships relation, Func<int,int, bool> predicat)
+		private void DigRelation()
 		{
 			for(int i=0; i<size; i++)
 				for(int j=i; j<size; j++)
-					if(predicat(i,j))
-						Relationshipsp[i,j] = relation;
+				{
+					if(relationship[i,j]&&!relationship[j,i])
+						relation[i,j] = Relationships.preceder;
+					if(!relationship[i,j]&&relationship[j,i])
+						relation[i,j] = Relationships.descend;
+					if(relationship[i,j]&&relationship[j,i])
+						relation[i,j] = Relationships.parallel;
+					else
+						relation[i,j] = Relationships.choice;
+				}
 		}
-	
+	        public IPetriNet Mine( int[][] log)
+	        {
+	        	DigRelationships (log);
+	        	DigRelatios();
+						
+	   }
 	}
 }
