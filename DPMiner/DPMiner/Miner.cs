@@ -15,14 +15,13 @@ namespace DPMiner
 	{
 		private int size;
 		private bool[,] relationship = null;
-		private List<Tuple<int,int>> preceders = new List<Tuple<int,int>>();
-		private List<Tuple<int,int>> parallels = new List<Tuple<int,int>>();
-		private List<Tuple<int,int>> choices = new List<Tuple<int,int>>();
+		private Relationships[,] relations = null;
         private List<Tuple<int, int>> followers = new List<Tuple<int, int>>();
 		public AlphaMiner (int size)
 		{
 			this.size = size;
 			relationship = new bool[size,size];
+			relations = new Relationship[size, size];
 			for(int i=0; i<size; i++)
 				for(int j=0; j<size; j++)
 					relationship[i,j]=false;
@@ -35,12 +34,12 @@ namespace DPMiner
 						relationship[trace[n],trace[n+1]]=true;
 				   
 		}
-		private void RelationThink(List<Tuple<int,int>> rList, Func<int,int, bool> predicat)
+		private void DigRelation(Relationships relation, Func<int,int, bool> predicat)
 		{
 			for(int i=0; i<size; i++)
-				for(int j=i+1; j<size; j++)
+				for(int j=i; j<size; j++)
 					if(predicat(i,j))
-						rList.Add(new Tuple<int,int>(i,j));
+						Relationshipsp[i,j] = relation;
 		}
 	
 	}
