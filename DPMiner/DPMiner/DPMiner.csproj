@@ -54,9 +54,10 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Miner.cs" />
-    <Compile Include="Petry.cs" />
+    <Compile Include="Petri.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Relationships.cs" />
     <Compile Include="Settings.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
