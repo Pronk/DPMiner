@@ -14,29 +14,26 @@ namespace DPMiner
     }
 	public class AlphaMiner
 	{
-		private int size;
-		private bool[,] relationship = null;
-		private Relationships[,] relations = null;
+		private int size
         private List<Tuple<int, int>> followers = new List<Tuple<int, int>>();
 		public AlphaMiner (int size)
 		{
 			this.size = size;
-			relationship = new bool[size,size];
-			relations = new Relationships[size, size];
-			for(int i=0; i<size; i++)
-				for(int j=0; j<size; j++)
-					relationship[i,j]=false;
+			
 		}
-		private void DigRelationships (int[][] log)
+		private bool[,] DigRelationships (int[][] log)
 		{
-
+			
+                        bool[,] relationship = relations = new bool[size, size];;
 			foreach (int[] trace in log ) 
 				for (int n=0; n < trace.Length - 1; n++) 
 						relationship[trace[n],trace[n+1]]=true;
+			return relationship;
 				   
 		}
-		private void DigRelation()
+		private Relationships[,] DigRelation(bool[,] relationship)
 		{
+			Relationships[,] relations = new Relationships[size,size];
 			for(int i=0; i<size; i++)
 				for(int j=i; j<size; j++)
 				{
@@ -49,6 +46,7 @@ namespace DPMiner
 					else
 						relations[i,j] = Relationships.choice;
 				}
+			return relations;
 		}
 		private List<Tuple<List<int>,List<int>>> GetMoves()
 		{
@@ -123,6 +121,8 @@ namespace DPMiner
 	        	int first;
 	        	int last;
 	        	int places;
+	        	int[,] relation;
+	        	Relationships[,] structure;
 	        	List<int> firsts = new List<int>();
 	        	List<int> lasts = new List<int>();
 	        	foreach(int[] trace in log)
@@ -134,8 +134,9 @@ namespace DPMiner
 	                        if(!lasts.Contain(last))
 	                        	Add.last()
 	        	}
-	        	DigRelationships (log);
-	        	DigRelation();
+	        	relation = DigRelationships (log);
+	        	structure=DigRelation(relation);
+	        	relation = null;
                 	List<Tuple<List<int>, List<int>>> moves = GetMoves();
                         places = moves.Count() + 2;
                         int[,] transitions = new int[size,places];
