@@ -122,6 +122,7 @@ namespace DPMiner
 	        {
 	        	int first;
 	        	int last;
+	        	int places;
 	        	List<int> firsts = new List<int>();
 	        	List<int> lasts = new List<int>();
 	        	foreach(int[] trace in log)
@@ -136,8 +137,24 @@ namespace DPMiner
 	        	DigRelationships (log);
 	        	DigRelation();
                 	List<Tuple<List<int>, List<int>>> moves = GetMoves();
-
-						
+                        places = moves.Count() + 2;
+                        int[,] transitions = new int[size,places];
+                        foreach(int first in firsts)
+                        	transitions[first,0] = -1;
+                        foreach(int last in lasts)
+                        	transitions[last, places - 1 ]=1
+                        for(int j=1; j<places-1;j++)
+                         {
+                           List[int] sources = moves[j-1].Item1();
+                           List[int] destanations = moves[j-1].Item2();
+                           foreach(int source in sources)
+                           	transition[source, j] = -1;
+                           foreach(int dest in destanations)
+                           	transition[dest, j] = 1;
+                         }
+                         PetriNet pn = new PetriNet(places, size);
+                         pn.SetTransitions(transitions).SideEffect(p => pn=p, => throw new Exception("Incorrect sizr""));
+                         return pn;
 	   	}
 	}
 }
