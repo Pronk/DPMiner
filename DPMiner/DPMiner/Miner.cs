@@ -120,9 +120,22 @@ namespace DPMiner
         
 	        public IPetriNet Mine( int[][] log)
 	        {
+	        	int first;
+	        	int last;
+	        	List<int> firsts = new List<int>();
+	        	List<int> lasts = new List<int>();
+	        	foreach(int[] trace in log)
+	        	{
+	                        first =  trace[0];
+	                        last = trace[trace.Length()];
+	                        if(!firsts.Contain(first))
+	                        	firsts.Add(first)
+	                        if(!lasts.Contain(last))
+	                        	Add.last()
+	        	}
 	        	DigRelationships (log);
 	        	DigRelation();
-                List<Tuple<List<int>, List<int>>> moves = GetMoves();
+                	List<Tuple<List<int>, List<int>>> moves = GetMoves();
 
 						
 	   	}
