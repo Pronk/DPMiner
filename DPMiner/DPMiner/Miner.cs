@@ -14,7 +14,7 @@ namespace DPMiner
     }
 	public class AlphaMiner
 	{
-		private int size
+	private int size;
         private List<Tuple<int, int>> followers = new List<Tuple<int, int>>();
 		public AlphaMiner (int size)
 		{
@@ -31,11 +31,11 @@ namespace DPMiner
 			return relationship;
 				   
 		}
-		private Relationships[,] DigRelation(bool[,] relationship)
-		{
-			Relationships[,] relations = new Relationships[size,size];
-			for(int i=0; i<size; i++)
-				for(int j=i; j<size; j++)
+	private Relationships[,] DigRelation(bool[,] relationship)
+	{
+		Relationships[,] relations = new Relationships[size,size];
+		for(int i=0; i<size; i++)
+			for(int j=i; j<size; j++)
 				{
 					if(relationship[i,j]&&!relationship[j,i])
 						relations[i,j] = Relationships.preceder;
@@ -47,21 +47,21 @@ namespace DPMiner
 						relations[i,j] = Relationships.choice;
 				}
 			return relations;
-		}
-		private List<Tuple<List<int>,List<int>>> GetMoves()
-		{
-            List<Tuple<List<int>, List<int>>> pairs = new List<Tuple<List<int>, List<int>>>();
-            List<List<int>> independs = GetAllSuchThat(size, (set, j) => Enumerable.All<int>(set, i => relations[i, j] == Relationships.choice));
-            foreach(List<int> set in independs)
-            {
-                List<List<int>> descends = GetAllSuchThat(size, GetDescentsChecker(set));
-                foreach(List<int> descend in descends)
-                    pairs.Add(new Tuple<List<int>,List<int>>(set,descend));
-            }
-            pairs = RemoveSmallOnes(pairs);
-            return pairs;
+	}
+	private List<Tuple<List<int>,List<int>>> GetMoves(Relationships[,] matrix )
+	{
+            	List<Tuple<List<int>, List<int>>> pairs = new List<Tuple<List<int>, List<int>>>();
+        	List<List<int>> independs = GetAllSuchThat(size, (set, j) => Enumerable.All<int>(set, i => matrix[i, j] == Relationships.choice));
+            	foreach(List<int> set in independs)
+            	{
+                	List<List<int>> descends = GetAllSuchThat(size, GetDescentsChecker(set, matrix));
+        		foreach(List<int> descend in descends)
+                    		pairs.Add(new Tuple<List<int>,List<int>>(set,descend));
+            	}
+            	 pairs = RemoveSmallOnes(pairs);
+            	 return pairs;
 	         
-		}
+	}
 
         private List<Tuple<List<int>, List<int>>> RemoveSmallOnes(List<Tuple<List<int>, List<int>>> pairs)
         {
@@ -97,19 +97,19 @@ namespace DPMiner
             return combinations;
         
         }
-        private Func<List<int>,int,bool> GetDescentsChecker(List<int> set)
+        private Func<List<int>,int,bool> GetDescentsChecker(List<int> set, Relationships[,] matrix)
         {
             return (newSet, j) =>
             {
-                if (!Enumerable.All<int>(newSet, i => relations[i, j] == Relationships.choice))
+                if (!Enumerable.All<int>(newSet, i => matrix[i, j] == Relationships.choice))
                     return false;
                 
                 Func<int, bool> f = i =>
                 {
                     if (i <= j)
-                        return relations[i, j] == Relationships.preceder;
+                        return matrix[i, j] == Relationships.preceder;
                     else
-                        return relations[j, i] == Relationships.descend;
+                        return matrix[j, i] == Relationships.descend;
                 };
                 return Enumerable.All<int>(set, f);
 
@@ -130,14 +130,14 @@ namespace DPMiner
 	                        first =  trace[0];
 	                        last = trace[trace.Length()];
 	                        if(!firsts.Contain(first))
-	                        	firsts.Add(first)
+	                        	firsts.Add(first)
 	                        if(!lasts.Contain(last))
 	                        	Add.last()
 	        	}
 	        	relation = DigRelationships (log);
 	        	structure=DigRelation(relation);
 	        	relation = null;
-                	List<Tuple<List<int>, List<int>>> moves = GetMoves();
+                	List<Tuple<List<int>, List<int>>> moves = GetMoves(structure);
                         places = moves.Count() + 2;
                         int[,] transitions = new int[size,places];
                         foreach(int first in firsts)
@@ -154,8 +154,36 @@ namespace DPMiner
                            	transition[dest, j] = 1;
                          }
                          PetriNet pn = new PetriNet(places, size);
-                         pn.SetTransitions(transitions).SideEffect(p => pn=p, => throw new Exception("Incorrect sizr""));
+                         pn.SetTransitions(transitions).SideEffect(p => pn=p, => throw new Exception("Incorrect size"));
                          return pn;
+	   	}
+	   	public class TesterOfMiner
+	   	{
+	   		AlphaMiner parent;
+	   		public TesterOfMiner(AlphaMiner miner)
+	   		{
+	   		 parent = miner;
+	   		}
+	   		public bool[,] TestMatrix1(int[][] log)
+	   		{
+	   			return parent.DigRelationships(log);
+	   		}
+	   		public Relationship[,] TestMatrix2(bool[,] matrix)
+	   		{
+	   			return parent.DigRelation(matrix)
+	   		}
+	   		public List<List<int>> TestSetConstructor(int limit, Func<List<int>,int,bool> predicat)
+	   		{
+	   			return parent.GetAllSuchThat(limit,predicat)
+	   		}
+	   		private List<Tuple<List<int>,List<int>>> TestGetMoves(Relationships[,] matrix )
+	   		{
+	   			return parent.GetMoves(matrix);
+	   		}
+	   	}
+	   	public TesterOfMiner GetTester()
+	   	{
+	   		return new TesterOfMiner(this);
 	   	}
 	}
 }
