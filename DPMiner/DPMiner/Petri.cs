@@ -9,13 +9,13 @@ namespace DPMiner
 {
     public interface IPetriNet
     {
-        IPetriControl getControls();
+        IPetriControl GetControls();
     }
     public interface  IPetriControl
     {
-        public bool TryFire(int id);
-        public bool Act();
-        public int[] Firable();
+        bool TryFire(int id);
+        bool Act();
+      int[] Firable();
 
     }
     struct  PetriNet:IPetriNet
@@ -88,7 +88,7 @@ namespace DPMiner
                      firable.Add(i);
              return firable.ToArray();
           }
-          public bool Tryfire(int id)
+          public bool TryFire(int id)
           {
               if(model.IsFirable(id))
               {
@@ -113,4 +113,4 @@ namespace DPMiner
     }
       
     }
-}
+

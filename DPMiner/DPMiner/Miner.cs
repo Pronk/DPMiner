@@ -23,12 +23,15 @@ namespace DPMiner
 		}
 		private bool[,] DigRelationships (int[][] log)
 		{
-			
-                        bool[,] relationship = relations = new bool[size, size];;
-			foreach (int[] trace in log ) 
-				for (int n=0; n < trace.Length - 1; n++) 
-						relationship[trace[n],trace[n+1]]=true;
-			return relationship;
+            try
+            {
+                bool[,] relationship = new bool[size, size];
+                foreach (int[] trace in log)
+                    for (int n = 0; n < trace.Length - 1; n++)
+                        relationship[trace[n], trace[n + 1]] = true;
+                return relationship;
+            }
+            catch (IndexOutOfRangeException) { throw new ArgumentException("Bad data formatting in log array!"); }
 				   
 		}
 	private Relationships[,] DigRelation(bool[,] relationship)
@@ -121,18 +124,18 @@ namespace DPMiner
 	        	int first;
 	        	int last;
 	        	int places;
-	        	int[,] relation;
+	        	bool[,] relation;
 	        	Relationships[,] structure;
 	        	List<int> firsts = new List<int>();
 	        	List<int> lasts = new List<int>();
 	        	foreach(int[] trace in log)
 	        	{
 	                        first =  trace[0];
-	                        last = trace[trace.Length()];
-	                        if(!firsts.Contain(first))
-	                        	firsts.Add(first)
-	                        if(!lasts.Contain(last))
-	                        	Add.last()
+	                        last = trace[trace.Length -1];
+	                        if(!firsts.Contains(first))
+	                        	firsts.Add(first);
+	                        if(!lasts.Contains(last))
+	                        	lasts.Add(last);
 	        	}
 	        	relation = DigRelationships (log);
 	        	structure=DigRelation(relation);
@@ -140,23 +143,27 @@ namespace DPMiner
                 	List<Tuple<List<int>, List<int>>> moves = GetMoves(structure);
                         places = moves.Count() + 2;
                         int[,] transitions = new int[size,places];
-                        foreach(int first in firsts)
-                        	transitions[first,0] = -1;
-                        foreach(int last in lasts)
-                        	transitions[last, places - 1 ]=1
+                        foreach(int f in firsts)
+                        	transitions[f,0] = -1;
+                        foreach(int l in lasts)
+                        	transitions[l, places - 1 ]=1;
                         for(int j=1; j<places-1;j++)
                          {
-                           List[int] sources = moves[j-1].Item1();
-                           List[int] destanations = moves[j-1].Item2();
+                           List<int> sources = moves[j-1].Item1;
+                           List<int> destanations = moves[j - 1].Item2;
                            foreach(int source in sources)
-                           	transition[source, j] = -1;
+                           	transitions[source, j] = -1;
                            foreach(int dest in destanations)
-                           	transition[dest, j] = 1;
+                           	transitions[dest, j] = 1;
                          }
                          PetriNet pn = new PetriNet(places, size);
-                         pn.SetTransitions(transitions).SideEffect(p => pn=p, => throw new Exception("Incorrect size"));
+                         pn.setTransitions(transitions).SideEffect(p => pn=p, ex);
                          return pn;
 	   	}
+        private void ex()
+    {
+            throw new Exception("Incorrect size");
+    }
 	   	public class TesterOfMiner
 	   	{
 	   		AlphaMiner parent;
@@ -168,13 +175,13 @@ namespace DPMiner
 	   		{
 	   			return parent.DigRelationships(log);
 	   		}
-	   		public Relationship[,] TestMatrix2(bool[,] matrix)
+	   		public Relationships[,] TestMatrix2(bool[,] matrix)
 	   		{
-	   			return parent.DigRelation(matrix)
+                return parent.DigRelation(matrix);
 	   		}
 	   		public List<List<int>> TestSetConstructor(int limit, Func<List<int>,int,bool> predicat)
 	   		{
-	   			return parent.GetAllSuchThat(limit,predicat)
+                return parent.GetAllSuchThat(limit, predicat);
 	   		}
 	   		private List<Tuple<List<int>,List<int>>> TestGetMoves(Relationships[,] matrix )
 	   		{
