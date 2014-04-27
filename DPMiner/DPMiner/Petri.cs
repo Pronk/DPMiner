@@ -18,7 +18,7 @@ namespace DPMiner
       int[] Firable();
 
     }
-    struct  PetriNet:IPetriNet implenets IEquatable
+    class PetriNet : IPetriNet, IEquatable<PetriNet>
     {
         
         int places;
@@ -27,11 +27,11 @@ namespace DPMiner
         int[,] transitions;
         
         // naive compare
-        public  bool Equals(PertriNet that)
+        public  bool Equals(PetriNet that)
         {
             if(this.tc != that.tc )
                 return false;
-            if(this.plases != that.places)
+            if(this.places != that.places)
                 return false;
             for(int i = 0; i<tc;i++)
                 for(int j = 0; j<places; j++)
