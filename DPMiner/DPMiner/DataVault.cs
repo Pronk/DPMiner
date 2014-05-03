@@ -19,32 +19,48 @@ namespace DPMiner
         {
             this.name = name;
         }
-        FieldProperty Role
+        public FieldProperty Role
         {
             get { return role; }
             set { this.role = value; }
         }
+
+        public override string ToString()
+        {
+ 	        return name;
+        }
         
 
     }
+   
     public interface IDataTable
     {
-        public DataField[] Content();
+         DataField[] Content();
+         IView Preview(DataVaultConstructor constructor);
+         IView Editor(DataVaultConstructor constructor);
+     
     }
-    abstract class DataTable : IEquatable<DataTable>,IDataTable
+    public abstract class DataTable : IEquatable<DataTable>,IDataTable
     {
-        DataVault vault;
         uint id;
         string name;
         static uint idCount = 0;
-       
+        public abstract DataField[] Content();
+        public IView Preview(DataVaultConstructor constructor)
+        {
+            return new DataTableView(this, constructor);
+        }
+        public IView Editor(DataVaultConstructor constructor)
+        {
+            return new TableEditor(this, constructor);
+        }
         public DataTable(string name)
         {
             this.name = name;
             id = idCount;
             idCount++;
         }
-        public bool Equals(object obj)
+        public bool Equals(DataTable obj)
         {
             if (obj is DataTable)
             {
@@ -58,7 +74,7 @@ namespace DPMiner
             return name + " : " + id.ToString();
         }
     }
-    class Hub : DataTable
+   public class Hub : DataTable
     {
         DataField surID;
         DataField phisID;
@@ -66,11 +82,11 @@ namespace DPMiner
         DataField audit;
         public bool Surrogate
         {
-            get { return surID == null; }
+            get { return surID != null; }
         }
         public bool Audit
         {
-            get { return audit == null; }
+            get { return audit != null; }
         }
         public override DataField[] Content()
         {
@@ -90,7 +106,7 @@ namespace DPMiner
             this.surID = surID.FinalTransform<DataField>(s => new DataField(s), null);
             this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
         }
-
+        
     }
     public class Link : DataTable
     {
@@ -100,11 +116,11 @@ namespace DPMiner
         DataField audit;
         public bool Surrogate
         {
-            get { return surID == null; }
+            get { return surID != null; }
         }
         public bool Audit
         {
-            get { return audit == null; }
+            get { return audit != null; }
         }
         public override DataField[] Content()
         {
@@ -126,7 +142,7 @@ namespace DPMiner
             this.surID = surID.FinalTransform<DataField>(s => new DataField(s), null);
             this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
         }
-
+        
     }
     public class Category : DataTable
     {
@@ -148,7 +164,7 @@ namespace DPMiner
                 categories.Add(new DataField(cname));
             this.key = new DataField(key);
         }
-
+       
     }
     public class Satelite : DataTable
     {
@@ -172,9 +188,12 @@ namespace DPMiner
             content.Add(source);
             return content.ToArray();
         }
-        public Satelite(string name, string key, string source, List<string> measures, List<Category> categories, Maybe<string> audit)
+        public Satelite(string name, Link link, string key, string source, List<string> measures, List<Category> categories, Maybe<string> audit)
             : base(name)
         {
+            this.link = link;
+            this.measures = new List<DataField>();
+            this.categories = new List<Category>();
             this.key = new DataField(key);
             this.source = new DataField(source);
             foreach (string field in measures)
@@ -183,10 +202,13 @@ namespace DPMiner
                 this.categories.Add(field);
             this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
         }
+       
     }
-    interface IDataVault
+    public interface IDataVault
     {
-        public List<IDataTable> Tables;
+       
+         DataVaultFormView View(DataVaultConstructor constructor);
+        IDataVaultControl Control();
 
     }
     public class DataVault:IDataVault
@@ -195,9 +217,19 @@ namespace DPMiner
         
         string name;
         List<IDataTable> tables;
-        public List<IDataTable> Table;
-        
-         
+        public DataVault(string str)
+        {
+            name = str;
+            tables = new List<IDataTable>();
+        }
+        public DataVaultFormView View(DataVaultConstructor constructor)
+        {
+            return new DataVaultFormView(tables, constructor);
+        }
+        public IDataVaultControl Control()
+        {
+            return new DataVualtControl(tables);
+        }
 
     }
 }
