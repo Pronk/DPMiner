@@ -9,7 +9,7 @@ namespace DPMiner
 {
     public  enum FieldProperty : byte
     {
-        processID, processVal, time, key
+        processID, processVal, time, key, fkey
     }
     public class DataField
     {
@@ -50,7 +50,7 @@ namespace DPMiner
         {
             return new DataTableView(this, constructor);
         }
-        public IView Editor(DataVaultConstructor constructor)
+        public virtual IView Editor(DataVaultConstructor constructor)
         {
             return new TableEditor(this, constructor);
         }
@@ -91,11 +91,11 @@ namespace DPMiner
         public override DataField[] Content()
         {
             if (Surrogate && Audit)
-                return new DataField[] { surID, phisID, source, audit };
+                return new DataField[] {  phisID, surID,   audit, source };
             if (Surrogate)
-                return new DataField[] { surID, phisID, source };
+                return new DataField[] { phisID, surID, source };
             if (Audit)
-                return new DataField[] { phisID, source, audit };
+                return new DataField[] { phisID, audit, source };
             return new DataField[] { phisID, source };
         }
         public Hub(string name, string phisID, string source, Maybe<string> surID, Maybe<string> audit)
@@ -106,7 +106,13 @@ namespace DPMiner
             this.surID = surID.FinalTransform<DataField>(s => new DataField(s), null);
             this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
         }
-        
+        public override IView Editor(DataVaultConstructor constructor)
+        {
+            IView view = base.Editor(constructor);
+            HubEdits edits = new HubEdits(this, constructor);
+            edits.Publish();
+            return view;
+        }
     }
     public class Link : DataTable
     {

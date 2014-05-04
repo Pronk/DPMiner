@@ -121,7 +121,7 @@ namespace DPMiner
             Type trueType = self.GetType();
             panel = new Panel();
             panel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)));
+            | System.Windows.Forms.AnchorStyles.Left)|AnchorStyles.Right));
             panel.AutoScroll = false;
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             panel.Location = new System.Drawing.Point(-1, -1);
@@ -129,11 +129,11 @@ namespace DPMiner
             panel.Size = new System.Drawing.Size(190, 200);
             panel.TabIndex = 0;
             Label label = new Label();
-            label.Text = trueType.ToString() +" " + self.ToString();
+            label.Text = Program.Util.Typename(trueType) +" " + self.ToString();
             label.Name = ToString();
             label.Left = 10;
             label.Top = 10;
-            label.Size = new System.Drawing.Size(160, 10);
+            label.Size = new System.Drawing.Size(160, 15);
             panel.Controls.Add(label);
             parent.Controls.RemoveByKey("panelEditor");
             this.parent.Controls.Add(panel);

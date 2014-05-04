@@ -58,6 +58,10 @@ namespace DPMiner
                         return false;
                 return true;
             }
+            public static string Typename(Type t)
+            {
+                return t.ToString().Split(new char[] { '.' })[1];
+            }
         }
     }
 }
