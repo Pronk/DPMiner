@@ -60,6 +60,11 @@ namespace DPMiner
             id = idCount;
             idCount++;
         }
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
         public bool Equals(DataTable obj)
         {
             if (obj is DataTable)
@@ -80,6 +85,14 @@ namespace DPMiner
         DataField phisID;
         DataField source;
         DataField audit;
+        public DataField PhisicalID
+        {
+            set {  phisID=value; }
+        }
+        public DataField SurogateID
+        {
+            set { surID =value; }
+        }
         public bool Surrogate
         {
             get { return surID != null; }
