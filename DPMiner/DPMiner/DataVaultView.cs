@@ -145,7 +145,7 @@ namespace DPMiner
             parent.Controls.RemoveByKey("panelEditor");
             this.parent.Controls.Add(panel);
         }
-        public TableEditor(Type type, DataVaultConstructor parent)
+        public TableEditor(TableType type, DataVaultConstructor parent)
         {
             this.parent = parent;
             panel = new Panel();
@@ -158,7 +158,7 @@ namespace DPMiner
             panel.Size = new System.Drawing.Size(parent.Width - 173, 200);
             panel.TabIndex = 0;
             Label label = new Label();
-            label.Text = Program.Util.Typename(type) + ". Enter the name.";
+            label.Text = type.ToString() + ". Enter the name.";
             label.Name = ToString();
             label.Left = 10;
             label.Top = 10;

@@ -38,6 +38,7 @@ namespace DPMiner
          DataField[] Content();
          IView Preview(DataVaultConstructor constructor);
          IView Editor(DataVaultConstructor constructor);
+         TableType Type();
      
     }
     public abstract class DataTable : IEquatable<DataTable>,IDataTable
@@ -46,6 +47,7 @@ namespace DPMiner
         string name;
         static uint idCount = 0;
         public abstract DataField[] Content();
+        public abstract TableType Type();
         public IView Preview(DataVaultConstructor constructor)
         {
             return new DataTableView(this, constructor);
@@ -126,6 +128,12 @@ namespace DPMiner
             edits.Publish();
             return view;
         }
+       public override TableType Type()
+       {
+           return TableType.Hub;
+       }
+
+        
     }
     public class Link : DataTable
     {
@@ -133,6 +141,20 @@ namespace DPMiner
         DataField surID;
         DataField source;
         DataField audit;
+        public List<Hub> Joint
+        {
+            set{joint = value;}
+            get{return joint;}
+        }
+        public DataField Key
+        {
+            set{surID = value;}
+            get{return surID;}
+        }
+        public override TableType Type()
+       {
+           return TableType.Link;
+       }
         public bool Surrogate
         {
             get { return surID != null; }
@@ -163,7 +185,7 @@ namespace DPMiner
         }
         
     }
-    public class Category : DataTable
+    public class Reference: DataTable
     {
         List<DataField> categories;
         DataField key;
@@ -175,7 +197,7 @@ namespace DPMiner
                 content.Add(category);
             return content.ToArray();
         }
-        public Category(string name, List<string> categoryNames, string key)
+        public Reference(string name, List<string> categoryNames, string key)
             : base(name)
         {
             categories = new List<DataField>();
@@ -183,13 +205,16 @@ namespace DPMiner
                 categories.Add(new DataField(cname));
             this.key = new DataField(key);
         }
-       
+       public override TableType Type()
+       {
+           return TableType.Reference;
+       }
     }
     public class Satelite : DataTable
     {
         Link link;
         List<DataField> measures;
-        List<Category> categories;
+        List<Reference> categories;
         DataField source;
         DataField audit;
         DataField key;
@@ -200,28 +225,31 @@ namespace DPMiner
             content.Add(link.Content()[0]);
             foreach (DataField measure in measures)
                 content.Add(measure);
-            foreach (Category category in categories)
+            foreach (Reference category in categories)
                 content.Add(category.Content()[0]);
             if (audit != null)
                 content.Add(audit);
             content.Add(source);
             return content.ToArray();
         }
-        public Satelite(string name, Link link, string key, string source, List<string> measures, List<Category> categories, Maybe<string> audit)
+        public Satelite(string name, Link link, string key, string source, List<string> measures, List<Reference> categories, Maybe<string> audit)
             : base(name)
         {
             this.link = link;
             this.measures = new List<DataField>();
-            this.categories = new List<Category>();
+            this.categories = new List<Reference>();
             this.key = new DataField(key);
             this.source = new DataField(source);
             foreach (string field in measures)
                 this.measures.Add(new DataField(field));
-            foreach (Category field in categories)
+            foreach (Reference field in categories)
                 this.categories.Add(field);
             this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
         }
-       
+       public override TableType Type()
+       {
+           return TableType.Satelite;
+       }
     }
     public interface IDataVault
     {
@@ -249,6 +277,10 @@ namespace DPMiner
         {
             return new DataVualtControl(tables);
         }
-
+        
+    }
+    public enum TableType:byte
+    {
+        Hub, Satelite, Link, Reference 
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Monad;
 
 namespace DPMiner
 {
@@ -14,12 +15,13 @@ namespace DPMiner
             public abstract void Edit(object sender, EventArgs e);
             public abstract void Delete(object sender, EventArgs e);
             public abstract void UpdateEditor();
-            public abstract void NewEditor(Type type);
+            public abstract void NewEditor(TableType type);
             public abstract void AddTable(IDataTable table);
             public abstract void NewHub(object sender, EventArgs e);
             public abstract void NewLink(object sender, EventArgs e);
             public abstract void NewSatelite(object sender, EventArgs e);
             public abstract void NewReference(object sender, EventArgs e);
+            public abstract Maybe<IDataTable> GetTable(string Key, TableType type);
             private void InitializeComponent()
             {
                 this.SuspendLayout();
@@ -91,7 +93,7 @@ namespace DPMiner
             {
                 editor.Renew();
             }
-            public override void NewEditor(Type type)
+            public override void NewEditor(TableType type)
             {
                 Controls.RemoveByKey("panelEditor");
                 editor = new TableEditor(type, this);
@@ -102,6 +104,12 @@ namespace DPMiner
                 Controls.RemoveByKey("panelEditor");
                 editor = new TableEditor(table, this);
                 this.Refresh();
+            }
+            public override Maybe<IDataTable> GetTable(string key, TableType type)
+            {
+                Maybe<IDataTable> result = control.GetTable(key, type);
+                result.SideEffect(t => { }, () => MessageBox.Show("Неверно указана связь по ключам!"));
+                return result;
             }
 
         }
