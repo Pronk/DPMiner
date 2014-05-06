@@ -39,7 +39,7 @@
             // exitButton
             // 
             this.exitButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.exitButton.Location = new System.Drawing.Point(436, 437);
+            this.exitButton.Location = new System.Drawing.Point(554, 516);
             this.exitButton.Name = "exitButton";
             this.exitButton.Size = new System.Drawing.Size(75, 23);
             this.exitButton.TabIndex = 1;
@@ -90,14 +90,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataVault.Location = new System.Drawing.Point(11, 61);
             this.dataVault.Name = "dataVault";
-            this.dataVault.Size = new System.Drawing.Size(500, 370);
+            this.dataVault.Size = new System.Drawing.Size(618, 449);
             this.dataVault.TabIndex = 0;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(514, 463);
+            this.ClientSize = new System.Drawing.Size(632, 542);
             this.Controls.Add(this.catButton);
             this.Controls.Add(this.sateliteButton);
             this.Controls.Add(this.linkButton);

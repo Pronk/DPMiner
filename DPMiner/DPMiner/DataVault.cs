@@ -124,7 +124,7 @@ namespace DPMiner
         public override IView Editor(DataVaultConstructor constructor)
         {
             IView view = base.Editor(constructor);
-            HubEdits edits = new HubEdits(this, constructor);
+            HubControls edits = new HubControls(this, constructor);
             edits.Publish();
             return view;
         }
@@ -189,6 +189,14 @@ namespace DPMiner
     {
         List<DataField> categories;
         DataField key;
+        public DataField Key
+        {
+            set { key = value; }
+        }
+        public  List<DataField> Fields
+        {
+            set { categories = value; }
+        }
         public override DataField[] Content()
         {
             List<DataField> content = new List<DataField>();
@@ -218,6 +226,22 @@ namespace DPMiner
         DataField source;
         DataField audit;
         DataField key;
+        public Link Link
+        {
+            set { Link = value; }
+        }
+        public List<DataField> Measures
+        {
+            set { measures = value; }
+        }
+        public List<Reference> References
+        {
+            set { categories = value; }
+        }
+        public DataField Key
+        {
+            set { key = value; }
+        }
         public override DataField[] Content()
         {
             List<DataField> content = new List<DataField>();
@@ -231,6 +255,10 @@ namespace DPMiner
                 content.Add(audit);
             content.Add(source);
             return content.ToArray();
+        }
+        public int Count()
+        {
+            return measures.Count();
         }
         public Satelite(string name, Link link, string key, string source, List<string> measures, List<Reference> categories, Maybe<string> audit)
             : base(name)

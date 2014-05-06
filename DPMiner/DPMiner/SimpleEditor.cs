@@ -58,7 +58,7 @@ namespace DPMiner
                 try
                 {
                     Button clicked = sender as Button;
-                    TableEdits edits = clicked.Parent as TableEdits;
+                    TableControls edits = clicked.Parent as TableControls;
                     Action<IDataTable> delete = (t) =>
                     {
                         if (control.TryRemove(t.ToString()))
@@ -111,7 +111,26 @@ namespace DPMiner
                 result.SideEffect(t => { }, () => MessageBox.Show("Неверно указана связь по ключам!"));
                 return result;
             }
-
+            public override void NewHub(object sender, EventArgs e)
+            {
+                editor = new TableEditor(TableType.Hub, this);
+                new HubControls(this).Publish();
+            }
+            public override void NewLink(object sender, EventArgs e)
+            {
+                editor = new TableEditor(TableType.Link, this);
+                new LinkControls(this).Publish();
+            }
+            public override void NewSatelite(object sender, EventArgs e)
+            {
+                editor = new TableEditor(TableType.Satelite, this);
+                new SateliteControls(this).Publish();
+            }
+            public override void NewReference(object sender, EventArgs e)
+            {
+                editor = new TableEditor(TableType.Reference, this);
+                new ReferenceControls(this).Publish();
+            }
         }
     }
 
