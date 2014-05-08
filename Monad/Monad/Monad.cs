@@ -6,11 +6,11 @@ namespace Monad
 	public abstract class Monad<t>
 	{
 		t item; 
-		public Monad (t item)
+		protected Monad (t item)
 		{
 			this.item = item;
 		}
-        public Monad ()
+        protected Monad ()
         {
 
         }
@@ -18,34 +18,37 @@ namespace Monad
 		{
 			return this.item;
 		}
-		public abstract Monad<y> Transform<y> (Func<t,y> function);
-		public abstract void SideEffect ( Action<t> action);
-		public abstract void SideEffect (Action<t> action, Action otherwise);
+		public abstract Monad<y> Transform<y> (Func<t,Maybe<y>> function);
+		public abstract void Do ( Action<t> action);
+		public abstract void Do (Action<t> action, Action otherwise);
 		public abstract  y  FinalTransform<y> (Func<t,y> function, y otherwise);
         
 	}
 	public class Maybe<t>:Monad<t>
 	{
 		
-        public Maybe ()
+        protected Maybe ()
         {
             if (!(this is None<t>))
                 throw new InvalidOperationException("This is Nothing!");
         }
-        public Maybe (t item):base(item){}
- 
+        protected Maybe (t item):base(item){}
+        public static Maybe<t> Something(t something)
+        {
+            return new Maybe<t>(something);
+        }
 		public static Maybe<t> None ()
 		{
             
 			return new None<t>();
 		}
-		public override Monad<y> Transform<y> (Func<t, y> function)
+		public override Monad<y> Transform<y> (Func<t, Maybe<y>> function)
 		{
 		     if( this is None<t> )
 				return Maybe<y>.None();
-			return new Maybe<y>(function(Load()));
+			return function(Load());
 		}
-		public override void SideEffect (Action<t> action)
+		public override void Do (Action<t> action)
 		{
 			if(!(this is None<t>))
 				action(Load());
@@ -56,10 +59,11 @@ namespace Monad
 				return otherwise;
 			return function(Load());
 		}
-		public override void SideEffect (Action<t> action, Action otherwise)
+		public override void Do (Action<t> action, Action otherwise)
 		{
 			if(this is None<t>)
 				otherwise();
+            else
 			action(Load ());
 		}
         public static implicit operator Maybe<t>(t val)
@@ -81,7 +85,7 @@ namespace Monad
             return Load().ToString();
         } 
 	}
-	 public sealed class None<t>:Maybe<t>
+	 internal sealed class None<t>:Maybe<t>
 	{
 		public None ()
 		{
@@ -96,11 +100,10 @@ namespace Monad
 	{
 	    static void Main(string[] args)
 		{
-			Maybe<int> m = new Maybe<int>(1);
-			Maybe<object> o = new Maybe<object>(null);
-            o = Maybe<object>.None();
-            Console.WriteLine( m + "\n");
-            Console.WriteLine(o + "\n");
+			Maybe<int> m = Maybe<int>.Something(1);
+            Maybe<int> k = Maybe<int>.None();
+            m.Do(n => Console.WriteLine(n.ToString()), () => Console.WriteLine("none"));
+            k.Do(n => Console.WriteLine(n.ToString()), () => Console.WriteLine("none"));
             Console.ReadLine();
 
 		}

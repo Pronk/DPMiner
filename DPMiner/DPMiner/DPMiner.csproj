@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Monad">
-      <HintPath>.\Monad.dll</HintPath>
+    <Reference Include="Monad, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Monad\Monad\bin\Debug\Monad.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -65,7 +66,9 @@
     <Compile Include="SimpleEditor.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="TableEdits.cs" />
+    <Compile Include="TableEdits.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

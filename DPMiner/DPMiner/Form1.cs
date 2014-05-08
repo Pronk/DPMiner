@@ -15,14 +15,20 @@ namespace DPMiner
     {
         public Form1()
        {
+           InitializeComponent();
+            hubButton.Click += dataVault.NewHub;
+            linkButton.Click += dataVault.NewLink;
+            sateliteButton.Click += dataVault.NewSatelite;
+            catButton.Click += dataVault.NewReference;
             
-            InitializeComponent();
        }
 
         private void exitButton_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
+
+       
 
        
         

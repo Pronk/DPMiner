@@ -67,7 +67,7 @@ namespace DPMiner
                             edits.Refresh();
                         }
                     };
-                    edits.Table.SideEffect(delete);
+                    edits.Table.Do(delete);
                 }
                 catch (InvalidCastException x) { };
 
@@ -75,13 +75,13 @@ namespace DPMiner
             public override void PreviewTable(object sender, EventArgs e)
             {
                 Label table = sender as Label;
-                control.GetTable(table.Text).SideEffect(t => t.Preview(this));
+                control.GetTable(table.Text).Do(t => t.Preview(this));
                 this.Refresh();
             }
             public override void Edit(object sender, EventArgs e)
             {
                 Label table = sender as Label;
-                control.GetTable(table.Text).SideEffect(t => editor = t.Editor(this));
+                control.GetTable(table.Text).Do(t => editor = t.Editor(this));
                 this.Refresh();
             }
             public override void Refresh()
@@ -108,7 +108,7 @@ namespace DPMiner
             public override Maybe<IDataTable> GetTable(string key, TableType type)
             {
                 Maybe<IDataTable> result = control.GetTable(key, type);
-                result.SideEffect(t => { }, () => MessageBox.Show("Неверно указана связь по ключам!"));
+                result.Do(t => { }, () => MessageBox.Show("Неверно указана связь по ключам!"));
                 return result;
             }
             public override void NewHub(object sender, EventArgs e)

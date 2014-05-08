@@ -43,7 +43,7 @@ namespace DPMiner
                 if(table.ToString() == tableName )
                 {
 
-                    return  new Maybe<IDataTable>(table);
+                    return  Maybe<IDataTable>.Something(table);
                 }
             return Maybe<IDataTable>.None();
         }
@@ -56,7 +56,7 @@ namespace DPMiner
                     if (table.Type() == type)
                     {
                         if (table.Content()[0].ToString() == key || ((table as Hub).Surrogate && table.Content()[2].ToString() == key))
-                            return new Maybe<IDataTable>(table);
+                            return Maybe<IDataTable>.Something(table);
 
                     }
                 }
@@ -64,7 +64,7 @@ namespace DPMiner
                     if(table.Type() == type)
                     {
                         if(table.Content()[0].ToString() == key)
-                            return new Maybe<IDataTable>(table);
+                            return Maybe<IDataTable>.Something(table);
                     }
                     continue;
 

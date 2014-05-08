@@ -133,7 +133,7 @@ namespace DPMiner
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             panel.Location = new System.Drawing.Point(-1, -1);
             panel.Name = "panelEditor";
-            panel.Size = new System.Drawing.Size(190, 200);
+            panel.Size = new System.Drawing.Size(parent.Width - 173, 200);
             panel.TabIndex = 0;
             Label label = new Label();
             label.Text = Program.Util.Typename(trueType) + " " + self.ToString();

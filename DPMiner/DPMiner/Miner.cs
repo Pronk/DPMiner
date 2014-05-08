@@ -157,7 +157,7 @@ namespace DPMiner
                            	transitions[dest, j] = 1;
                          }
                          PetriNet pn = new PetriNet(places, size);
-                         pn.setTransitions(transitions).SideEffect(p => pn=p, ex);
+                         pn.setTransitions(transitions).Do(p => pn=p, ex);
                          return pn;
 	   	}
         private void ex()
