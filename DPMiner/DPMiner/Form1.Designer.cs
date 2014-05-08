@@ -30,10 +30,10 @@
         {
             this.exitButton = new System.Windows.Forms.Button();
             this.hubButton = new System.Windows.Forms.Button();
-            this.dataVault = new DPMiner.SimpleEditor();
             this.linkButton = new System.Windows.Forms.Button();
             this.sateliteButton = new System.Windows.Forms.Button();
             this.catButton = new System.Windows.Forms.Button();
+            this.dataVault = new DPMiner.SimpleEditor();
             this.SuspendLayout();
             // 
             // exitButton
@@ -46,17 +46,6 @@
             this.exitButton.Text = "Выход";
             this.exitButton.UseVisualStyleBackColor = true;
             this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
-           
-            // 
-            // dataVault
-            // 
-            this.dataVault.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataVault.Location = new System.Drawing.Point(11, 61);
-            this.dataVault.Name = "dataVault";
-            this.dataVault.Size = new System.Drawing.Size(618, 449);
-            this.dataVault.TabIndex = 0;
             // 
             // hubButton
             // 
@@ -92,6 +81,16 @@
             this.catButton.TabIndex = 5;
             this.catButton.Text = "R";
             this.catButton.UseVisualStyleBackColor = true;
+            // 
+            // dataVault
+            // 
+            this.dataVault.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataVault.Location = new System.Drawing.Point(11, 61);
+            this.dataVault.Name = "dataVault";
+            this.dataVault.Size = new System.Drawing.Size(618, 449);
+            this.dataVault.TabIndex = 0;
             // 
             // Form1
             // 

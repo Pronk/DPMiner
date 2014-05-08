@@ -183,7 +183,13 @@ namespace DPMiner
             this.surID = surID.FinalTransform<DataField>(s => new DataField(s), null);
             this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
         }
-        
+        public override IView Editor(DataVaultConstructor constructor)
+        {
+            IView view = base.Editor(constructor);
+            LinkControls edits = new LinkControls(this, constructor);
+            edits.Publish();
+            return view;
+        }
     }
     public class Reference: DataTable
     {
@@ -217,6 +223,13 @@ namespace DPMiner
        {
            return TableType.Reference;
        }
+       public override IView Editor(DataVaultConstructor constructor)
+       {
+           IView view = base.Editor(constructor);
+           ReferenceControls edits = new ReferenceControls(this, constructor);
+           edits.Publish();
+           return view;
+       }
     }
     public class Satelite : DataTable
     {
@@ -228,7 +241,7 @@ namespace DPMiner
         DataField key;
         public Link Link
         {
-            set { Link = value; }
+            set { link = value; }
         }
         public List<DataField> Measures
         {
@@ -277,6 +290,13 @@ namespace DPMiner
        public override TableType Type()
        {
            return TableType.Satelite;
+       }
+       public override IView Editor(DataVaultConstructor constructor)
+       {
+           IView view = base.Editor(constructor);
+           SateliteControls edits = new SateliteControls(this, constructor);
+           edits.Publish();
+           return view;
        }
     }
     public interface IDataVault
