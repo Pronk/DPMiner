@@ -119,13 +119,14 @@ namespace DPMiner
     public class HubControls : TableControls
     {
         TextBox name;
-        TextBox sur;
         TextBox bis;
+        RoleSelector keyRoles;
         public HubControls(DataVaultConstructor parent) : base(parent) { }
         public HubControls(IDataTable table, DataVaultConstructor parent) : base(table, parent) { }
         public override void Edits(IDataTable table, DataVaultConstructor parent)
         {
             Controls.Clear();
+            Clear();
             Hub hub = table as Hub;
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
@@ -133,7 +134,7 @@ namespace DPMiner
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new System.Drawing.Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new System.Drawing.Size(300, 175);
+            this.Size = new System.Drawing.Size(420, 175);
             this.TabIndex = 0;
             Label label = new Label();
             DataField[] fields = hub.Content();
@@ -145,61 +146,52 @@ namespace DPMiner
             name.Name = "bKeyBox";
             name.Location = new System.Drawing.Point(80, 1);
             name.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(name);
-            this.Controls.Add(label);
+            Panel panel = FieldPanel();
+            panel.Controls.Add(name);
+            panel.Controls.Add(label);
             label = new Label();
             label.Text = "Business Key";
             label.Name = "bKeyLabel";
-            label.Location = new System.Drawing.Point(1, 30);
+            label.Location = new System.Drawing.Point(1, 1);
             bis = new TextBox();
             bis.Text = fields[0].ToString();
             bis.Name = "bKeyBox";
-            bis.Location = new System.Drawing.Point(80, 30);
+            bis.Location = new System.Drawing.Point(80, 1);
             bis.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(bis);
-            this.Controls.Add(label);
-            label = new Label();
-            label.Text = "Surrogate Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 60);
-            sur = new TextBox();
-            if (hub.Surrogate)
-                sur.Text = fields[1].ToString();
-            else
-                sur.Text = " ";
-            sur.Name = "sKeyBox";
-            sur.Location = new System.Drawing.Point(80, 60);
-            sur.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(sur);
-            this.Controls.Add(label);
+            panel = FieldPanel();
+            keyRoles = new RoleSelector(new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.key }), new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.fkey }), hub.ID.Roles, panel);
+            panel.Controls.Add(bis);
+            panel.Controls.Add(label);
+            panel = ControlPanel();
             Button button = new Button();
             button.Name = "UpdateButton";
             button.Text = "Update";
-            button.Location = new System.Drawing.Point(1, 90);
+            button.Location = new System.Drawing.Point(1, 1);
             button.Size = new System.Drawing.Size(60, 20);
             button.Click += UpdateHub;
-            this.Controls.Add(button);
+            panel.Controls.Add(button);
             button = new Button();
             button.Name = "deleteButton";
             button.Text = "Delete";
             button.Click += parent.Delete;
             button.Click += OnDelete;
-            button.Location = new System.Drawing.Point(80, 90);
+            button.Location = new System.Drawing.Point(80, 1);
             button.Size = new System.Drawing.Size(60, 20);
-            this.Controls.Add(button);
+            panel.Controls.Add(button);
 
 
         }
         public override void Edits(DataVaultConstructor parent)
         {
             Controls.Clear();
+            Clear();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
             this.AutoScroll = false;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new System.Drawing.Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new System.Drawing.Size(190, 175);
+            this.Size = new System.Drawing.Size(420, 175);
             this.TabIndex = 0;
             Label label = new Label();
             label.Text = "Name";
@@ -210,37 +202,30 @@ namespace DPMiner
             name.Name = "bKeyBox";
             name.Location = new System.Drawing.Point(80, 1);
             name.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(name);
-            this.Controls.Add(label);
+            Panel panel= FieldPanel();
+            panel.Controls.Add(name);
+            panel.Controls.Add(label);
             label = new Label();
             label.Text = "Business Key";
             label.Name = "bKeyLabel";
-            label.Location = new System.Drawing.Point(1, 30);
+            label.Location = new System.Drawing.Point(1, 1);
             bis = new TextBox();
             bis.Text = "";
             bis.Name = "bKeyBox";
-            bis.Location = new System.Drawing.Point(80, 30);
+            bis.Location = new System.Drawing.Point(80, 1);
             bis.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(bis);
-            this.Controls.Add(label);
-            label = new Label();
-            label.Text = "Surrogate Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 60);
-            sur = new TextBox();
-            sur.Text = " ";
-            sur.Name = "sKeyBox";
-            sur.Location = new System.Drawing.Point(80, 60);
-            sur.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(sur);
-            this.Controls.Add(label);
+            panel = FieldPanel();
+            keyRoles = new RoleSelector(new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.key }), new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.fkey }), panel);
+            panel.Controls.Add(bis);
+            panel.Controls.Add(label);
+            panel = ControlPanel();
             Button button = new Button();
             button.Name = "AddButton";
             button.Text = "Add";
-            button.Location = new System.Drawing.Point(1, 90);
+            button.Location = new System.Drawing.Point(1, 1);
             button.Size = new System.Drawing.Size(60, 20);
             button.Click += AddHub;
-            this.Controls.Add(button);
+            panel.Controls.Add(button);
         }
         private void UpdateHub(object sender, EventArgs args)
         {
@@ -248,17 +233,12 @@ namespace DPMiner
             {
                 string newName = "";
                 string newBKey = "";
-                string newSKey = "";
                 TrueText(name).Do(s => newName = s, () => { throw new ArgumentException("Hub must have a name!"); });
-                TrueText(bis).Do(s => newName = s, () => { throw new ArgumentException("Hub must have a business keu!"); });
-                TrueText(sur).Do(s => newName = s);
+                TrueText(bis).Do(s => newBKey = s, () => { throw new ArgumentException("Hub must have a business keu!"); });
                 Hub hub = Table.Load() as Hub;
-                hub.PhisicalID = new DataField(newBKey);
+                hub.ID = new DataField(newBKey);
+                hub.ID = hub.ID <= keyRoles.Selected;
                 hub.Name = newName;
-                if (newSKey != "")
-                    hub.SurogateID = new DataField(newSKey);
-                else
-                    hub.PhisicalID = null;
                 parent.Refresh();
                 parent.UpdateEditor();
                 this.Edits(hub, parent);
@@ -273,10 +253,10 @@ namespace DPMiner
             {
                 string newName = "";
                 string newBKey = "";
-                Maybe<string> newSKey = TrueText(sur);
                 TrueText(name).Do(s => newName = s, () => { throw new ArgumentException("Hub must have a name!"); });
                 TrueText(bis).Do(s => newBKey = s, () => { throw new ArgumentException("Hub must have a business key!"); });
-                Hub hub = new Hub(newName, newBKey, "source", newSKey, Maybe<string>.None());
+                Hub hub = new Hub(newName, newBKey);
+                hub.ID = hub.ID <= keyRoles.Selected;
                 parent.AddTable(hub);
                 Table = hub;
                 this.Publish();
@@ -289,7 +269,9 @@ namespace DPMiner
         int n = 1;
         TextBox sur;
         TextBox name;
+        RoleSelector keyRoles;
         List<TextBox> hubKeys = new List<TextBox>();
+        List<RoleSelector> fKeyRoles = new List<RoleSelector>();
         public LinkControls(DataVaultConstructor parent) : base(parent) { }
         public LinkControls(IDataTable table, DataVaultConstructor parent) : base(table, parent) { }
         public override void Edits(IDataTable table, DataVaultConstructor parent)
@@ -298,6 +280,7 @@ namespace DPMiner
             Clear();
             Controls.Clear();
             hubKeys.Clear();
+            fKeyRoles.Clear();
             Link link = table as Link;
             DataField[] fields = link.Content();
             List<Point> movables = new List<Point>();
@@ -333,24 +316,34 @@ namespace DPMiner
             sur.Text = fields[0].ToString();
             sur.Location = new System.Drawing.Point(80, 1);
             sur.Size = new System.Drawing.Size(100, 20);
+            keyRoles = new RoleSelector(
+                new HashSet<FieldProperty> { FieldProperty.key }, 
+                new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.time, FieldProperty.pVal }, 
+                fields[0].Roles, panel);
             panel.Controls.Add(sur);
             panel.Controls.Add(label);
-            foreach (int k in Enumerable.Range(1, fields.Length - 2))
+            foreach (int k in Enumerable.Range(0, link.Joint.Count))
             {
                 panel = FieldPanel();
                 label = new Label();
-                label.Text = "Hub" + k.ToString();
+                label.Text = "Hub" + (k+1).ToString();
                 label.Name = "nameLabel";
                 label.Location = new System.Drawing.Point(1, 1);
                 label.Size = new System.Drawing.Size(60, 20);
                 TextBox hub = new TextBox();
-                hub.Text = fields[k].ToString();
+                hub.Text = link.Joint[k].ToString();
                 hub.Name = "bKeyBox";
                 hub.Location = new System.Drawing.Point(80, 1);
                 hub.Size = new System.Drawing.Size(100, 30);
                 panel.Controls.Add(label);
                 panel.Controls.Add(hub);
                 hubKeys.Add(hub);
+                fKeyRoles.Add(
+                    new RoleSelector(
+                        new HashSet<FieldProperty> { FieldProperty.fkey },
+                        new HashSet<FieldProperty> { FieldProperty.key }, 
+                        link.Joint[k].Roles, panel)
+                        );
                 n = k;
             }
             panel = ControlPanel();
@@ -418,6 +411,10 @@ namespace DPMiner
             sur.Location = new System.Drawing.Point(80, 1);
             sur.Size = new System.Drawing.Size(100, 20);
             panel.Controls.Add(sur);
+            keyRoles = new RoleSelector(
+               new HashSet<FieldProperty> { FieldProperty.key },
+               new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.time, FieldProperty.pVal },
+               panel);
             panel.Controls.Add(label);
             panel = FieldPanel();
             label = new Label();
@@ -430,6 +427,12 @@ namespace DPMiner
             hub.Name = "hKeyBox";
             hub.Location = new System.Drawing.Point(80, 1);
             hub.Size = sur.Size;
+            fKeyRoles.Add(
+                    new RoleSelector(
+                        new HashSet<FieldProperty> { FieldProperty.fkey },
+                        new HashSet<FieldProperty> { FieldProperty.key }, 
+                         panel)
+                        );
             panel.Controls.Add(label);
             panel.Controls.Add(hub);
             panel = ControlPanel();
@@ -479,10 +482,14 @@ namespace DPMiner
                 return;
             }
             link.Name = newName;
-            link.Joint = joint;
+            link.Joint = joint.Select<Hub,DataField>(hub=>hub.Content()[0] - FieldProperty.key + FieldProperty.fkey).ToList();
+            foreach (int k in Enumerable.Range(0, link.Joint.Count))
+                link.Joint[k] = link.Joint[k] <= fKeyRoles[k].Selected;
             link.Key = new DataField(newKey);
+            link.Key = link.Key <= keyRoles.Selected;
             parent.Refresh();
             parent.UpdateEditor();
+            Publish();
         }
         private void AddField(object sender, EventArgs e)
         {
@@ -498,9 +505,16 @@ namespace DPMiner
             hub.Name = "bKeyBox";
             hub.Location = new System.Drawing.Point(80, 1);
             hub.Size = new System.Drawing.Size(100, 20);
+            fKeyRoles.Add(
+                    new RoleSelector(
+                        new HashSet<FieldProperty> { FieldProperty.fkey },
+                        new HashSet<FieldProperty> { FieldProperty.key },
+                         panel)
+                        );
             panel.Controls.Add(label);
             panel.Controls.Add(hub);
-            Refresh();
+            hubKeys.Add(hub);
+            
         }
         private void AddLink(object sender, EventArgs e)
         {
@@ -529,7 +543,10 @@ namespace DPMiner
                 MessageBox.Show("Нужно связать как минмум 2 хаба");
                 return;
             }
-            Link link = new Link(newName, joint, "source", newKey, Maybe<string>.None());
+            Link link = new Link(newName, joint,  newKey);
+            foreach (int k in Enumerable.Range(0, link.Joint.Count))
+                link.Joint[k] = link.Joint[k] <= fKeyRoles[k].Selected;
+            link.Key = link.Key <= keyRoles.Selected;
             parent.AddTable(link);
             Table = link;
             Publish();
@@ -815,7 +832,7 @@ namespace DPMiner
                 Satelite satelite = Table.Load() as Satelite;
                 satelite.Name = newName;
                 satelite.Key = new DataField(newKey);
-                satelite.Link = newLink;
+                satelite.Link = newLink.Content()[0] - FieldProperty.key + FieldProperty.fkey;
                 satelite.Measures = newFields;
                 parent.UpdateEditor();
                 parent.Refresh();
@@ -830,7 +847,7 @@ namespace DPMiner
             label.Text = "reference" + (m - 2).ToString();
             label.Name = "=meLabel";
             label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(60, 20);
+            label.Size = new Size(80, 20);
             TextBox referance = new TextBox();
             referance.Text = "";
             referance.Name = "refBox";
@@ -886,7 +903,7 @@ namespace DPMiner
                 }
                 TableControls.TrueText(link).Do(s => fKey = s, () => { throw new System.ArgumentException(); });
                 parent.GetTable(fKey, TableType.Link).Do(t => newLink = t as Link, () => { throw new ArgumentException("Link with key " + fKey + " not found!"); });
-                Satelite satelite = new Satelite(newName, newLink, newKey, "source", newFields, newRefs, Maybe<string>.None());
+                Satelite satelite = new Satelite(newName, newLink, newKey,  newFields, newRefs);
                 parent.AddTable(satelite);
                 Table = satelite;
                 Publish();
@@ -902,14 +919,13 @@ namespace DPMiner
         TextBox name = new TextBox();
         TextBox sur = new TextBox();
         List<TextBox> measures = new List<TextBox>();
-        List<Control> movable = new List<Control>();
         public ReferenceControls(DataVaultConstructor parent) : base(parent) { }
         public ReferenceControls(IDataTable table, DataVaultConstructor parent) : base(table, parent) { }
         public override void Edits(IDataTable table, DataVaultConstructor parent)
         {
             n = 1;
+            Clear();
             Controls.Clear();
-            movable.Clear();
             measures.Clear();
             Reference reference = table as Reference;
             DataField[] fields = reference.Content();
@@ -926,72 +942,74 @@ namespace DPMiner
             label.Text = "Name";
             label.Name = "nameLabel";
             label.Location = new System.Drawing.Point(1, 1);
+            Panel panel = FieldPanel();
             name = new TextBox();
             name.Text = reference.Name;
             name.Name = "bKeyBox";
             name.Location = new System.Drawing.Point(80, 1);
             name.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(name);
-            this.Controls.Add(label);
+            panel.Controls.Add(name);
+            panel.Controls.Add(label);
+            panel = FieldPanel();
             sur = new TextBox();
             label = new Label();
             label.Text = "Key";
             label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 30);
+            label.Location = new System.Drawing.Point(1, 1);
             sur = new TextBox();
             sur.Name = "sKeyBox";
             sur.Text = fields[0].ToString();
-            sur.Location = new System.Drawing.Point(80, 30);
+            sur.Location = new System.Drawing.Point(80, 1);
             sur.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(sur);
-            this.Controls.Add(label);
+            panel.Controls.Add(sur);
+            panel.Controls.Add(label);
             foreach (int k in Enumerable.Range(1, fields.Length - 2))
             {
+                panel = FieldPanel();
                 label = new Label();
-                label.Text = "Hub" + k.ToString();
+                label.Text = "Field" + k.ToString();
                 label.Name = "nameLabel";
-                label.Location = new System.Drawing.Point(1, 30 * (k + 1));
+                label.Location = new System.Drawing.Point(1, 1);
+                label.Size = new Size(80, 20);
                 TextBox mes = new TextBox();
                 mes.Text = fields[k].ToString();
                 mes.Name = "bKeyBox";
-                mes.Location = new System.Drawing.Point(80, 30 * (k + 1));
+                mes.Location = new System.Drawing.Point(80, 1);
                 mes.Size = new System.Drawing.Size(100, 30);
-                Controls.Add(label);
-                Controls.Add(mes);
+                panel.Controls.Add(label);
+                panel.Controls.Add(mes);
                 measures.Add(mes);
                 n = k;
             }
+            panel = ControlPanel();
             Button button = new Button();
             button.Name = "UpdateButton";
             button.Text = "Update";
-            button.Location = new System.Drawing.Point(1, 30 * (n + 2));
+            button.Location = new System.Drawing.Point(1, 1);
             button.Size = new System.Drawing.Size(60, 20);
             button.Click += UpdateRef;
-            this.Controls.Add(button);
-            movable.Add(button);
+            panel.Controls.Add(button);
             button = new Button();
             button.Name = "deleteButton";
             button.Text = "Delete";
             button.Click += parent.Delete;
             button.Click += OnDelete;
-            button.Location = new System.Drawing.Point(80, 30 * (n + 2));
+            button.Location = new System.Drawing.Point(80, 1);
             button.Size = new System.Drawing.Size(60, 20);
-            this.Controls.Add(button);
-            movable.Add(button);
+            panel.Controls.Add(button);
             button = new Button();
             button.Name = "newHubButton";
             button.Text = "Add";
             button.Click += AddField;
-            button.Location = new System.Drawing.Point(160, 30 * (n + 2));
+            button.Location = new System.Drawing.Point(160, 1);
             button.Size = new System.Drawing.Size(60, 20);
-            movable.Add(button);
-            this.Controls.Add(button);
+            panel.Controls.Add(button);
         }
         public override void Edits(DataVaultConstructor parent)
         {
             n = 1;
+            Clear();
             Controls.Clear();
-            movable.Clear();
             measures.Clear();
             List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -1000,8 +1018,9 @@ namespace DPMiner
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new Size(190, 175);
+            this.Size = new Size(420, 175);
             this.TabIndex = 0;
+            Panel panel = FieldPanel();
             Label label = new Label();
             label.Text = "Name";
             label.Name = "nameLabel";
@@ -1011,47 +1030,51 @@ namespace DPMiner
             name.Name = "name";
             name.Location = new System.Drawing.Point(80, 1);
             name.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(name);
-            this.Controls.Add(label);
+            panel.Controls.Add(name);
+            panel.Controls.Add(label);
             sur = new TextBox();
             label = new Label();
             label.Text = "Surrogate Key";
             label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 30);
+            label.Location = new System.Drawing.Point(1, 1);
+            panel = FieldPanel();
             sur = new TextBox();
             sur.Name = "sKeyBox";
             sur.Text = "";
-            sur.Location = new System.Drawing.Point(80, 30);
+            sur.Location = new System.Drawing.Point(80, 1);
             sur.Size = new System.Drawing.Size(100, 20);
-            this.Controls.Add(sur);
-            this.Controls.Add(label);
+            panel.Controls.Add(sur);
+            panel.Controls.Add(label);
+            panel = FieldPanel();
             label = new Label();
-            label.Text = "Hub1";
+            label.Text = "Field1";
             label.Name = "nameLabel";
             label.Location = new System.Drawing.Point(1, 1);
-            TextBox hub = new TextBox();
-            hub.Text = "";
-            hub.Name = "hKeyBox";
-            hub.Location = new System.Drawing.Point(80, 60);
-            hub.Size = new System.Drawing.Size(100, 60);
-            Controls.Add(label);
-            Controls.Add(hub);
+            label.Size = new Size(80, 20);
+            TextBox mes = new TextBox();
+            mes.Text = "";
+            mes.Name = "hKeyBox";
+            mes.Location = new System.Drawing.Point(80, 1);
+            mes.Size = new System.Drawing.Size(100, 60);
+            panel.Controls.Add(label);
+            panel.Controls.Add(mes);
+            measures.Add(mes);
+            panel = ControlPanel();
             Button button = new Button();
             button.Name = "addButton";
-            button.Text = "Add";
-            button.Location = new System.Drawing.Point(1, 90);
-            button.Size = new System.Drawing.Size(60, 20);
+            button.Text = "Create";
+            button.Location = new System.Drawing.Point(1, 1);
+            button.Size = new System.Drawing.Size(80, 20);
             button.Click += AddRef;
-            this.Controls.Add(button);
-            movable.Add(button);
+            panel.Controls.Add(button);
+            
             button = new Button();
             button.Name = "newHubButton";
-            button.Text = "Add";
+            button.Text = "Add Field";
             button.Click += AddField;
-            button.Location = new System.Drawing.Point(80, 90);
-            button.Size = new System.Drawing.Size(60, 20);
-            movable.Add(button);
-            this.Controls.Add(button);
+            button.Location = new System.Drawing.Point(80, 1);
+            button.Size = new System.Drawing.Size(80, 20);
+            panel.Controls.Add(button);
         }
         protected void UpdateRef(object srnder, EventArgs args)
         {
@@ -1095,26 +1118,22 @@ namespace DPMiner
             }
             catch (ArgumentException e) { MessageBox.Show(e.Message); }
         }
-        protected void Shift()
-        {
-            foreach (Control control in movable)
-                control.Top += 30;
-        }
         protected void AddField(object sender, EventArgs args)
         {
             n++;
+            Panel panel = FieldPanel();
             Label label = new Label();
             label.Text = "Hub" + n.ToString();
             label.Name = "nameLabel";
             label.Location = new System.Drawing.Point(1, 1);
+            label.Size = new Size(80, 20);
             TextBox field = new TextBox();
             field.Text = "";
             field.Name = "bKeyBox";
-            field.Location = new System.Drawing.Point(80, 30 * (n + 1));
-            field.Size = new System.Drawing.Size(100, 30 * (n + 1));
-            Controls.Add(label);
-            Controls.Add(field);
-            Shift();
+            field.Location = new System.Drawing.Point(80, 1);
+            field.Size = new System.Drawing.Size(100, 1);
+            panel.Controls.Add(label);
+            panel.Controls.Add(field);
             Refresh();
         }
     }

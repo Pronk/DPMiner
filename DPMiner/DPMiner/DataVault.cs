@@ -9,22 +9,45 @@ namespace DPMiner
 {
     public  enum FieldProperty : byte
     {
-        processID, processVal, time, key, fkey
+        pID, pVal, time, key, fkey
     }
-    public class DataField
+    public struct DataField
     {
         string name;
-        FieldProperty role;
+        HashSet<FieldProperty> roles;
         public DataField(string name)
         {
             this.name = name;
+            roles = new HashSet<FieldProperty>();
         }
         public FieldProperty Role
         {
-            get { return role; }
-            set { this.role = value; }
+            set { roles.Add(value);  }
         }
-
+        public HashSet<FieldProperty> Roles
+        {
+            get { return roles; }
+        }
+        public static DataField operator - ( DataField df, FieldProperty fp)
+        {
+            df.roles.Remove(fp);
+            return df;
+        }
+        public static DataField operator + ( DataField df, FieldProperty fp)
+        {
+            df.roles.Add(fp);
+            return df;
+        }
+        public static DataField operator  <= (DataField df, HashSet<FieldProperty> set)
+        {
+            df.roles = set;
+            return df;
+        }
+        public static DataField operator >=(DataField df, HashSet<FieldProperty> set)
+        {
+            df.roles = new HashSet<FieldProperty>(set.Union(df.roles));
+            return df;
+        }
         public override string ToString()
         {
  	        return name;
@@ -83,43 +106,25 @@ namespace DPMiner
     }
    public class Hub : DataTable
     {
-        DataField surID;
-        DataField phisID;
-        DataField source;
-        DataField audit;
-        public DataField PhisicalID
+        DataField iD;
+        public DataField ID
         {
-            set {  phisID=value; }
+            set {  iD=value; }
+            get { return iD; }
         }
-        public DataField SurogateID
+        public void IDRole(HashSet<FieldProperty> set)
         {
-            set { surID =value; }
-        }
-        public bool Surrogate
-        {
-            get { return surID != null; }
-        }
-        public bool Audit
-        {
-            get { return audit != null; }
+            iD = iD <= set;
         }
         public override DataField[] Content()
         {
-            if (Surrogate && Audit)
-                return new DataField[] {  phisID, surID,   audit, source };
-            if (Surrogate)
-                return new DataField[] { phisID, surID, source };
-            if (Audit)
-                return new DataField[] { phisID, audit, source };
-            return new DataField[] { phisID, source };
+  
+            return new DataField[] {iD};
         }
-        public Hub(string name, string phisID, string source, Maybe<string> surID, Maybe<string> audit)
+        public Hub(string name, string iD)
             : base(name)
         {
-            this.phisID = new DataField(phisID);
-            this.source = new DataField(source);
-            this.surID = surID.FinalTransform<DataField>(s => new DataField(s), null);
-            this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
+            this.iD = new DataField(iD) + FieldProperty.key;
         }
         public override IView Editor(DataVaultConstructor constructor)
         {
@@ -137,11 +142,20 @@ namespace DPMiner
     }
     public class Link : DataTable
     {
-        List<Hub> joint;
+        List<DataField> joint;
         DataField surID;
-        DataField source;
-        DataField audit;
-        public List<Hub> Joint
+        public void IDRole(HashSet<FieldProperty> set)
+        {
+             surID = surID <= set;
+        }
+        public void FKeyRoles(List<HashSet<FieldProperty>> roles)
+        {
+            if (joint.Count != roles.Count)
+                return;
+            foreach (int n in Enumerable.Range(0, joint.Count))
+                joint[n] = joint[n] <= roles[n]; 
+        }
+        public List<DataField> Joint
         {
             set{joint = value;}
             get{return joint;}
@@ -155,33 +169,19 @@ namespace DPMiner
        {
            return TableType.Link;
        }
-        public bool Surrogate
-        {
-            get { return surID != null; }
-        }
-        public bool Audit
-        {
-            get { return audit != null; }
-        }
         public override DataField[] Content()
         {
             List<DataField> content = new List<DataField>();
-            if (Surrogate)
-                content.Add(surID);
-            foreach (Hub hub in joint)
-                content.Add(hub.Content()[0]);
-            content.Add(source);
-            if (Audit)
-                content.Add(audit);
+            content.Add(surID);
+            foreach (DataField hub in joint)
+                content.Add(hub);
             return content.ToArray();
         }
-        public Link(string name, List<Hub> joint, string source, Maybe<string> surID, Maybe<string> audit)
+        public Link(string name, List<Hub> joint, string surID)
             : base(name)
         {
-            this.joint = joint;
-            this.source = new DataField(source);
-            this.surID = surID.FinalTransform<DataField>(s => new DataField(s), null);
-            this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
+            this.joint = joint.Select<Hub,DataField>(hub => hub.Content()[0] - FieldProperty.key + FieldProperty.fkey).ToList();
+            this.surID = new DataField(surID) + FieldProperty.key;
         }
         public override IView Editor(DataVaultConstructor constructor)
         {
@@ -203,6 +203,17 @@ namespace DPMiner
         {
             set { categories = value; }
         }
+        public void IDRole(HashSet<FieldProperty> set)
+        {
+            key = key <= set;
+        }
+        public void FieldRoles(List<HashSet<FieldProperty>> roles)
+        {
+            if (categories.Count != roles.Count)
+                return;
+            foreach (int n in Enumerable.Range(0, roles.Count))
+                categories[n] = categories[n] <= roles[n];
+        }
         public override DataField[] Content()
         {
             List<DataField> content = new List<DataField>();
@@ -217,7 +228,7 @@ namespace DPMiner
             categories = new List<DataField>();
             foreach (string cname in categoryNames)
                 categories.Add(new DataField(cname));
-            this.key = new DataField(key);
+            this.key = new DataField(key)  + FieldProperty.key;
         }
        public override TableType Type()
        {
@@ -233,13 +244,11 @@ namespace DPMiner
     }
     public class Satelite : DataTable
     {
-        Link link;
+        DataField link;
         List<DataField> measures;
-        List<Reference> categories;
-        DataField source;
-        DataField audit;
+        List<DataField> categories;
         DataField key;
-        public Link Link
+        public DataField Link
         {
             set { link = value; }
         }
@@ -247,7 +256,7 @@ namespace DPMiner
         {
             set { measures = value; }
         }
-        public List<Reference> References
+        public List<DataField> References
         {
             set { categories = value; }
         }
@@ -259,33 +268,26 @@ namespace DPMiner
         {
             List<DataField> content = new List<DataField>();
             content.Add(key);
-            content.Add(link.Content()[0]);
+            content.Add(link);
             foreach (DataField measure in measures)
                 content.Add(measure);
-            foreach (Reference category in categories)
-                content.Add(category.Content()[0]);
-            if (audit != null)
-                content.Add(audit);
-            content.Add(source);
+            foreach (DataField category in categories)
+                content.Add(category);
             return content.ToArray();
         }
         public int Count()
         {
             return measures.Count();
         }
-        public Satelite(string name, Link link, string key, string source, List<string> measures, List<Reference> categories, Maybe<string> audit)
+        public Satelite(string name, Link link, string key,  List<string> measures, List<Reference> categories)
             : base(name)
         {
-            this.link = link;
+            this.link = link.Content()[0];
             this.measures = new List<DataField>();
-            this.categories = new List<Reference>();
-            this.key = new DataField(key);
-            this.source = new DataField(source);
+            this.key = new DataField(key) + FieldProperty.key;
             foreach (string field in measures)
                 this.measures.Add(new DataField(field));
-            foreach (Reference field in categories)
-                this.categories.Add(field);
-            this.audit = audit.FinalTransform<DataField>(s => new DataField(s), null);
+            this.categories = categories.Select<Reference, DataField>(re => re.Content()[0] - FieldProperty.key + FieldProperty.fkey).ToList();
         }
        public override TableType Type()
        {

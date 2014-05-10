@@ -51,16 +51,6 @@ namespace DPMiner
         {
             foreach(IDataTable table in tables)
             {
-                if (type == TableType.Hub)
-                {
-                    if (table.Type() == type)
-                    {
-                        if (table.Content()[0].ToString() == key || ((table as Hub).Surrogate && table.Content()[2].ToString() == key))
-                            return Maybe<IDataTable>.Something(table);
-
-                    }
-                }
-                else
                     if(table.Type() == type)
                     {
                         if(table.Content()[0].ToString() == key)

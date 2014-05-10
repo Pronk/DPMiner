@@ -35,7 +35,7 @@ namespace DPMiner
             }
 
         }
-        public partial class SimpleEditor : DataVaultConstructor
+        public  class SimpleEditor : DataVaultConstructor
         {
             IView tables;
             IView editor;
@@ -47,12 +47,7 @@ namespace DPMiner
                 control = model.Control();
             }
 
-            private void button1_Click(object sender, EventArgs e)
-            {
-                string s = null;
-                control.Add(new Hub("table", "a", "b", s, s));
-                tables.Renew();
-            }
+           
             public override void Delete(object sender, EventArgs e)
             {
                 try
