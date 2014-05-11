@@ -62,6 +62,7 @@ namespace DPMiner
          IView Preview(DataVaultConstructor constructor);
          IView Editor(DataVaultConstructor constructor);
          TableType Type();
+         string GetName();
      
     }
     public abstract class DataTable : IEquatable<DataTable>,IDataTable
@@ -84,6 +85,10 @@ namespace DPMiner
             this.name = name;
             id = idCount;
             idCount++;
+        }
+        public string GetName()
+        {
+            return name;
         }
         public string Name
         {
@@ -198,10 +203,12 @@ namespace DPMiner
         public DataField Key
         {
             set { key = value; }
+            get { return key; }
         }
         public  List<DataField> Fields
         {
             set { categories = value; }
+            get { return categories;  }
         }
         public void IDRole(HashSet<FieldProperty> set)
         {
@@ -251,18 +258,22 @@ namespace DPMiner
         public DataField Link
         {
             set { link = value; }
+            get { return link; }
         }
         public List<DataField> Measures
         {
             set { measures = value; }
+            get { return measures; }
         }
         public List<DataField> References
         {
             set { categories = value; }
+            get { return categories; }
         }
         public DataField Key
         {
             set { key = value; }
+            get { return key; }
         }
         public override DataField[] Content()
         {
@@ -304,8 +315,9 @@ namespace DPMiner
     public interface IDataVault
     {
        
-         DataVaultFormView View(DataVaultConstructor constructor);
+        DataVaultFormView View(DataVaultConstructor constructor);
         IDataVaultControl Control();
+        Dictionary<FieldProperty, Dictionary<string, List<DataField>>> Logic();
 
     }
     public class DataVault:IDataVault
@@ -326,6 +338,20 @@ namespace DPMiner
         public IDataVaultControl Control()
         {
             return new DataVualtControl(tables);
+        }
+        public Dictionary<FieldProperty, Dictionary<string, List<DataField>>> Logic()
+        {
+            Dictionary<FieldProperty, Dictionary<string, List<DataField>>> logic = new Dictionary<FieldProperty, Dictionary<string, List<DataField>>>();
+            foreach(FieldProperty fp in Enum.GetValues(typeof( FieldProperty)))
+            {
+                Dictionary<string, List<DataField>> lists = new Dictionary<string, List<DataField>>();
+                foreach(IDataTable table in tables)
+                {
+                    lists.Add(table.GetName(), table.Content().Where(d => d.Roles.Contains(fp)).ToList());
+                }
+                logic.Add(fp, lists);
+            }
+            return logic;
         }
         
     }

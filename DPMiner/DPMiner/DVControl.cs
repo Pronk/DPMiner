@@ -64,8 +64,29 @@ namespace DPMiner
         }
         public bool isConnected()
         {
-            throw new MissingMethodException();
-        }
+            List<int> connect = new List<int>{0};
+            foreach(int i in Enumerable.Range(0,tables.Count))
+                foreach(int j in Enumerable.Range(i+1,tables.Count-i-1))
+                {
+                    if (connect.Contains(i))
+                        if (!connect.Contains(j) && areConnected(tables[i], tables[j]))
+                            connect.Add(j);
+                    if (connect.Count  == tables.Count)
+                        return true;
+                            
+                }
+            return false;
 
+        }
+        private bool areConnected(IDataTable t1, IDataTable t2)
+        {
+            foreach (DataField df in t1.Content())
+                if (df.ToString() == t2.Content()[0].ToString())
+                    return true;
+            foreach (DataField df in t2.Content())
+                if (df.ToString() == t1.Content()[0].ToString())
+                    return true;
+            return false;
+        }
     }
 }

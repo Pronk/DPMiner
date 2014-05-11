@@ -34,6 +34,7 @@
             this.sateliteButton = new System.Windows.Forms.Button();
             this.catButton = new System.Windows.Forms.Button();
             this.dataVault = new DPMiner.SimpleEditor();
+            this.buttonNext = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // exitButton
@@ -92,11 +93,22 @@
             this.dataVault.Size = new System.Drawing.Size(618, 449);
             this.dataVault.TabIndex = 0;
             // 
+            // buttonNext
+            // 
+            this.buttonNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonNext.Location = new System.Drawing.Point(545, 32);
+            this.buttonNext.Name = "buttonNext";
+            this.buttonNext.Size = new System.Drawing.Size(75, 23);
+            this.buttonNext.TabIndex = 6;
+            this.buttonNext.Text = "=>";
+            this.buttonNext.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(632, 542);
+            this.Controls.Add(this.buttonNext);
             this.Controls.Add(this.catButton);
             this.Controls.Add(this.sateliteButton);
             this.Controls.Add(this.linkButton);
@@ -117,6 +129,7 @@
         private System.Windows.Forms.Button linkButton;
         private System.Windows.Forms.Button sateliteButton;
         private System.Windows.Forms.Button catButton;
+        private System.Windows.Forms.Button buttonNext;
 
        
 
