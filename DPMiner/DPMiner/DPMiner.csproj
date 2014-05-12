@@ -51,6 +51,9 @@
     <Compile Include="DataVault.cs" />
     <Compile Include="DataVaultView.cs" />
     <Compile Include="DVControl.cs" />
+    <Compile Include="LogicParser.cs" />
+    <Compile Include="LogicView.cs" />
+    <Compile Include="ProcessLogic.cs" />
     <Compile Include="Relationship.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

@@ -12,7 +12,8 @@ namespace DPMiner
         private ProcessLogic parent;
         public LogicControl(string[] text, ProcessLogic parent)
         {
-
+            this.text = text;
+            this.parent = parent;
         }
         public Action<object, EventArgs> Update(Action errorCase)
         {
