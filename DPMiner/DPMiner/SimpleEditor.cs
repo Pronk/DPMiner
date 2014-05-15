@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing;
 using Monad;
 
 namespace DPMiner
@@ -22,6 +23,8 @@ namespace DPMiner
             public abstract void NewSatelite(object sender, EventArgs e);
             public abstract void NewReference(object sender, EventArgs e);
             public abstract Maybe<IDataTable> GetTable(string Key, TableType type);
+            public EventHandler Tables(TableType t);
+            public ListBox Candidates();
             private void InitializeComponent()
             {
                 this.SuspendLayout();
@@ -32,6 +35,7 @@ namespace DPMiner
                 this.Name = "DataVaultConstructor";
                 this.ResumeLayout(false);
 
+                
             }
 
         }
@@ -40,14 +44,31 @@ namespace DPMiner
             IView tables;
             IView editor;
             IDataVaultControl control;
+            ListBox candidates;
             public SimpleEditor()
             {
                 IDataVault model = new DataVault("test");
                 tables = model.View(this);
                 control = model.Control();
+
+                candidates = new ListBox();
+                candidates.Location = new Point(-1, 200);
+                candidates.Size = new Size(100, this.Height - 200);
+                candidates.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+                this.Controls.Add(candidates);
             }
 
-           
+            public ListBox Candidates()
+            {
+                return candidates;
+            }
+            public EventHandler Tables(TableType t)
+            {
+                return (o,e) =>{
+                candidates.Items.Clear();
+                candidates.Items.AddRange(control.GetTables(t).ToArray());
+                };
+            }
             public override void Delete(object sender, EventArgs e)
             {
                 try

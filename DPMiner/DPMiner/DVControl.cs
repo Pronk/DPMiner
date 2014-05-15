@@ -13,6 +13,7 @@ namespace DPMiner
          bool TryRemove(string tableName);
          Maybe<IDataTable> GetTable(string tableName);
          Maybe<IDataTable> GetTable(string key, TableType type);
+         List<IDataTable> GetTables(TableType type);
          bool isConnected();
     }
     public class DataVualtControl:IDataVaultControl
@@ -88,5 +89,9 @@ namespace DPMiner
                     return true;
             return false;
         }
+        List<IDataTable> GetTables(TableType type)
+       {
+           return tables.Where(t => t.Type() == type).ToList();
+       }
     }
 }

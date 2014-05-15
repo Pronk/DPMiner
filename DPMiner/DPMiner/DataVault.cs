@@ -5,15 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Monad;
 
+
+
 namespace DPMiner
 {
+    using Fkey = Tuple<DataField, IDataTable>;
     public  enum FieldProperty : byte
     {
         pID, pVal, time, key, fkey
     }
+   
     public struct DataField
     {
-        string name;
+        private string name;
         HashSet<FieldProperty> roles;
         public DataField(string name)
         {
@@ -54,8 +58,9 @@ namespace DPMiner
         }
         
 
+      
     }
-   
+
     public interface IDataTable
     {
          DataField[] Content();
@@ -147,7 +152,7 @@ namespace DPMiner
     }
     public class Link : DataTable
     {
-        List<DataField> joint;
+        List<Fkey> joint;
         DataField surID;
         public void IDRole(HashSet<FieldProperty> set)
         {
@@ -158,9 +163,9 @@ namespace DPMiner
             if (joint.Count != roles.Count)
                 return;
             foreach (int n in Enumerable.Range(0, joint.Count))
-                joint[n] = joint[n] <= roles[n]; 
+                joint[n] = new Fkey (joint[n].Item1 <= roles[n], joint[n].Item2) ; 
         }
-        public List<DataField> Joint
+        public List<Fkey> Joint
         {
             set{joint = value;}
             get{return joint;}
@@ -178,14 +183,14 @@ namespace DPMiner
         {
             List<DataField> content = new List<DataField>();
             content.Add(surID);
-            foreach (DataField hub in joint)
+            foreach (DataField hub in joint.Select<Fkey,DataField>(t => t.Item1))
                 content.Add(hub);
             return content.ToArray();
         }
-        public Link(string name, List<Hub> joint, string surID)
+        public Link(string name, List<Hub> joint,List<string> fKeys, string surID)
             : base(name)
         {
-            this.joint = joint.Select<Hub,DataField>(hub => hub.Content()[0] - FieldProperty.key + FieldProperty.fkey).ToList();
+            this.joint = Enumerable.Zip<string, IDataTable, Fkey>(fKeys, joint, (str, table) => new Fkey(new DataField(str), table)).ToList();
             this.surID = new DataField(surID) + FieldProperty.key;
         }
         public override IView Editor(DataVaultConstructor constructor)
@@ -251,11 +256,12 @@ namespace DPMiner
     }
     public class Satelite : DataTable
     {
-        DataField link;
+       
+        Fkey link;
         List<DataField> measures;
-        List<DataField> categories;
+        List<Fkey> categories;
         DataField key;
-        public DataField Link
+        public Fkey Link
         {
             set { link = value; }
             get { return link; }
@@ -265,7 +271,7 @@ namespace DPMiner
             set { measures = value; }
             get { return measures; }
         }
-        public List<DataField> References
+        public List<Fkey> References
         {
             set { categories = value; }
             get { return categories; }
@@ -279,26 +285,26 @@ namespace DPMiner
         {
             List<DataField> content = new List<DataField>();
             content.Add(key);
-            content.Add(link);
+            content.Add(link.Item1);
             foreach (DataField measure in measures)
                 content.Add(measure);
-            foreach (DataField category in categories)
-                content.Add(category);
+            foreach (Fkey category in categories)
+                content.Add(category.Item1);
             return content.ToArray();
         }
         public int Count()
         {
             return measures.Count();
         }
-        public Satelite(string name, Link link, string key,  List<string> measures, List<Reference> categories)
+        public Satelite(string name, Link link, string linkName, string key,  List<string> measures, List<Reference> categories, List<string> refNames )
             : base(name)
         {
-            this.link = link.Content()[0];
+            this.link = new Fkey(new DataField(linkName), link);
             this.measures = new List<DataField>();
             this.key = new DataField(key) + FieldProperty.key;
             foreach (string field in measures)
                 this.measures.Add(new DataField(field));
-            this.categories = categories.Select<Reference, DataField>(re => re.Content()[0] - FieldProperty.key + FieldProperty.fkey).ToList();
+            this.categories = Enumerable.Zip<string, IDataTable, Fkey>(refNames, categories, (s, t) => new Fkey(new DataField(s), t)).ToList();
         }
        public override TableType Type()
        {

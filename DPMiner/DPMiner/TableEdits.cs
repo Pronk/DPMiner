@@ -9,8 +9,10 @@ using Monad;
 
 namespace DPMiner
 {
+    using FKey==
     public abstract class TableControls : Panel
     {
+
         Panel fieldsPanel = new Panel();
         public void Clear()
         {
@@ -48,6 +50,7 @@ namespace DPMiner
             }
             return panel;
         }
+
         protected Panel ControlPanel()
         {
             Panel panel = new Panel();
@@ -331,6 +334,7 @@ namespace DPMiner
                 label.Location = new System.Drawing.Point(1, 1);
                 label.Size = new System.Drawing.Size(60, 20);
                 TextBox hub = new TextBox();
+                hub.GotFocus+=parent.Tables(TableType.Hub);
                 hub.Text = link.Joint[k].ToString();
                 hub.Name = "bKeyBox";
                 hub.Location = new System.Drawing.Point(80, 1);
@@ -342,7 +346,7 @@ namespace DPMiner
                     new RoleSelector(
                         new HashSet<FieldProperty> { FieldProperty.fkey },
                         new HashSet<FieldProperty> { FieldProperty.key }, 
-                        link.Joint[k].Roles, panel)
+                        link.Joint[k].Item1.Roles, panel)
                         );
                 n = k;
             }
@@ -551,7 +555,7 @@ namespace DPMiner
             Table = link;
             Publish();
             Refresh();
-        }
+        
     }
     public class SateliteControls : TableControls
     {

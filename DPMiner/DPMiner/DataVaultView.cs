@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace DPMiner
 {
@@ -30,6 +31,8 @@ namespace DPMiner
             panel.Size = new System.Drawing.Size(158, 331);
             panel.TabIndex = 0;
             this.parent.Controls.Add(panel);
+
+            
              
         }
         public Control Display()
@@ -75,9 +78,9 @@ namespace DPMiner
             | System.Windows.Forms.AnchorStyles.Right)));
             panel.AutoScroll = false;
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            panel.Location = new System.Drawing.Point(-1, 200);
+            panel.Location = new System.Drawing.Point(100, 200);
             panel.Name = "panelTable";
-            panel.Size = new System.Drawing.Size(parent.Width - 173, parent.Height - 200);
+            panel.Size = new System.Drawing.Size(parent.Width - 273, parent.Height - 200);
             panel.TabIndex = 0;
             this.parent.Controls.Add(panel);
             Label tableLabel = new Label();
