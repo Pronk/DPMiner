@@ -3,19 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows.Forms;
 namespace DPMiner
 {
-    public class LogicControl
+    public interface ILogicControl
     {
-        private string[] text;
+        EventHandler Compile(Action successCase, Action errorCase);
+        EventHandler Return();
+        EventHandler AddSelected();
+        ProcessLogic Logic();
+    }
+    public class TextToLogicParser:ILogicControl
+    {
+        private RichTextBox text;
         private ProcessLogic parent;
-        public LogicControl(string[] text, ProcessLogic parent)
+        public TextToLogicParser(RichTextBox text, ProcessLogic parent)
         {
             this.text = text;
             this.parent = parent;
         }
-        public Action<object, EventArgs> Update(Action errorCase)
+        public EventHandler Compile(Action successCase, Action errorCase)
         {
             
            return (o, e) =>
@@ -23,20 +30,39 @@ namespace DPMiner
                 try
                 {
                     List<EventLogic> newLogic = new List<EventLogic>();
-                    foreach (string line in text)
+                    foreach (string line in text.Lines)
                         newLogic.Add(Parse(line));
                     parent.ProcessEvents = newLogic;
                 }
                 catch (ArgumentException) { errorCase(); }
+                successCase();
             };
         }
+        public EventHandler Return()
+        {
+            return (sender, e) =>
+                {
+                    text.Lines = parent.ProcessEvents.Select<EventLogic, string>(v => v.ToString()).ToArray();
+                };
+        }
+        public EventHandler AddSelected()
+        {
+           return (sender, e) =>
+           {
+               ListControl list = sender as ListControl;
+               if(list != null && list.SelectedValue != null)
+                text.Text += list.SelectedValue.ToString();
+           };
+        }
+        public ProcessLogic Logic()
+        { return parent; }
 
         private  EventLogic Parse(string str)
         {
             string[] arr = str.Split(new char[] { '=' });
             try
             {
-                return new EventLogic(arr[0], ParseToLogic(arr[1]));
+                return new EventLogic(arr[0].Trim(), ParseToLogic(arr[1].Trim()));
             }
             catch (IndexOutOfRangeException e) { throw new ArgumentException(); }
         }
@@ -46,11 +72,11 @@ namespace DPMiner
                 return new LogNeg(ParseToLogic(str.Substring(1, str.Length - 1)));
             if(str[0] == '(')
             {
-                Tuple<string,string,string> splited = Split(str.Trim(new char[]{'(',')'}));
+                Tuple<string,string,string> splited = Split(str.Substring(1,str.Length -2));
                 if(splited.Item2 =="&")
-                    return new LogAnd(ParseToLogic(splited.Item1),ParseToLogic(splited.Item2));
+                    return new LogAnd(ParseToLogic(splited.Item1),ParseToLogic(splited.Item3));
                 if (splited.Item2 == "v")
-                    return new LogOr(ParseToLogic(splited.Item1), ParseToLogic(splited.Item2));
+                    return new LogOr(ParseToLogic(splited.Item1), ParseToLogic(splited.Item3));
                 else
                     throw new ArgumentException();
             }

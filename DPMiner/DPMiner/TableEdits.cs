@@ -9,7 +9,48 @@ using Monad;
 
 namespace DPMiner
 {
-    using FKey==
+    using Fkey = Tuple<DataField, IDataTable>;
+    using FkeyList = Tuple<List<string>, List<IDataTable>>;
+    public class FKEditor:TextBox
+    {
+          IDataTable table = null;
+        public Maybe<IDataTable> getTable()
+        {
+            if (table == null)
+                return Maybe<IDataTable>.None();
+            return Maybe<IDataTable>.Something(table);
+        }
+        public void setTable(IDataTable table)
+        {
+            this.table = table;
+        }
+        static public  Maybe<Fkey> Unload (FKEditor editor)
+        {
+            string text=null;
+            IDataTable table=null;
+            try{
+                 TableControls.TrueText(editor).Do(s=>text=s,()=>{throw new Exception();});
+                 editor.getTable().Do(t=>table=t,()=>{throw new Exception();});
+                }catch(Exception){return Maybe<Fkey>.None(); }
+            return  Maybe<Fkey>.Something(new Fkey(new DataField(text),table));
+        }
+        static public FkeyList UnloadList (IEnumerable<FKEditor> editors)
+        {
+            FkeyList list = new FkeyList(new List<string>(), new List<IDataTable>());
+            IDataTable table = null;
+            string name = null;
+            foreach(FKEditor editor in editors)
+            {
+             try{
+                 TableControls.TrueText(editor).Do(s=>name=s,()=>{throw new Exception();});
+                 editor.getTable().Do(t=>table=t,()=>{throw new Exception();});
+                 list.Item1.Add(name);
+                 list.Item2.Add(table);
+                }catch(Exception){continue;}
+            }
+            return  list;
+        }
+    }
     public abstract class TableControls : Panel
     {
 
@@ -69,27 +110,27 @@ namespace DPMiner
             parent.Refresh();
         }
         IDataTable self = null;
-        protected DataVaultConstructor parent;
+        protected IDataVaultConstructor parent;
         public Maybe<IDataTable> Table
         {
             get { return Maybe<IDataTable>.Something(self); }
             protected set { value.Do(t => self = t, () => self = null); }
         }
-        public TableControls(IDataTable table, DataVaultConstructor parent)
+        public TableControls(IDataTable table, IDataVaultConstructor parent)
             : base()
         {
             self = table;
 
             this.parent = parent;
         }
-        public TableControls(DataVaultConstructor parent)
+        public TableControls(IDataVaultConstructor parent)
             : base()
         {
 
             this.parent = parent;
         }
-        public abstract void Edits(IDataTable table, DataVaultConstructor parent);
-        public abstract void Edits(DataVaultConstructor parent);
+        public abstract void Edits(IDataTable table, IDataVaultConstructor parent);
+        public abstract void Edits(IDataVaultConstructor parent);
         public void Publish()
         {
             fp =false;
@@ -100,7 +141,7 @@ namespace DPMiner
             try
             {
 
-                parent.Controls["panelEditor"].Controls.Add(this);
+                parent.AddToEditor(this);
                
             }
             catch (KeyNotFoundException e) { }
@@ -124,9 +165,9 @@ namespace DPMiner
         TextBox name;
         TextBox bis;
         RoleSelector keyRoles;
-        public HubControls(DataVaultConstructor parent) : base(parent) { }
-        public HubControls(IDataTable table, DataVaultConstructor parent) : base(table, parent) { }
-        public override void Edits(IDataTable table, DataVaultConstructor parent)
+        public HubControls(IDataVaultConstructor parent) : base(parent) { }
+        public HubControls(IDataTable table, IDataVaultConstructor parent) : base(table, parent) { }
+        public override void Edits(IDataTable table, IDataVaultConstructor parent)
         {
             Controls.Clear();
             Clear();
@@ -184,7 +225,7 @@ namespace DPMiner
 
 
         }
-        public override void Edits(DataVaultConstructor parent)
+        public override void Edits(IDataVaultConstructor parent)
         {
             Controls.Clear();
             Clear();
@@ -273,11 +314,11 @@ namespace DPMiner
         TextBox sur;
         TextBox name;
         RoleSelector keyRoles;
-        List<TextBox> hubKeys = new List<TextBox>();
+        List<FKEditor> hubKeys = new List<FKEditor>();
         List<RoleSelector> fKeyRoles = new List<RoleSelector>();
-        public LinkControls(DataVaultConstructor parent) : base(parent) { }
-        public LinkControls(IDataTable table, DataVaultConstructor parent) : base(table, parent) { }
-        public override void Edits(IDataTable table, DataVaultConstructor parent)
+        public LinkControls(IDataVaultConstructor parent) : base(parent) { }
+        public LinkControls(IDataTable table, IDataVaultConstructor parent) : base(table, parent) { }
+        public override void Edits(IDataTable table, IDataVaultConstructor parent)
         {
             n = 1;
             Clear();
@@ -333,10 +374,11 @@ namespace DPMiner
                 label.Name = "nameLabel";
                 label.Location = new System.Drawing.Point(1, 1);
                 label.Size = new System.Drawing.Size(60, 20);
-                TextBox hub = new TextBox();
-                hub.GotFocus+=parent.Tables(TableType.Hub);
-                hub.Text = link.Joint[k].ToString();
+                FKEditor hub = new FKEditor();
+                hub.setTable(link.Joint[k].Item2);
+                hub.Text = link.Joint[k].Item1.ToString();
                 hub.Name = "bKeyBox";
+                hub.Enter+=parent.InvokeSelector(TableType.Hub,hub);
                 hub.Location = new System.Drawing.Point(80, 1);
                 hub.Size = new System.Drawing.Size(100, 30);
                 panel.Controls.Add(label);
@@ -376,7 +418,7 @@ namespace DPMiner
             button.Size = new System.Drawing.Size(60, 20);
             panel.Controls.Add(button);
         }
-        public override void Edits(DataVaultConstructor parent)
+        public override void Edits(IDataVaultConstructor parent)
         {
             n = 1;
             Clear();
@@ -426,10 +468,11 @@ namespace DPMiner
             label.Name = "nameLabel";
             label.Location = new System.Drawing.Point(1, 1);
             label.Size = new Size(60, 20);
-            TextBox hub = new TextBox();
+            FKEditor hub = new FKEditor();
             hub.Text = "";
             hub.Name = "hKeyBox";
             hub.Location = new System.Drawing.Point(80, 1);
+            hub.Enter+=parent.InvokeSelector(TableType.Hub,hub);
             hub.Size = sur.Size;
             fKeyRoles.Add(
                     new RoleSelector(
@@ -462,33 +505,18 @@ namespace DPMiner
             string newName = "";
             Link link = Table.Load() as Link;
             string newKey = "";
-            bool missed = false;
-            bool fail = false;
-            List<Hub> joint = new List<Hub>();
-            TableControls.TrueText(name).Do(s => { newName = s; }, () => { fail = true; });
-            TableControls.TrueText(sur).Do(s => { newKey = s; }, () => { fail = true; });
-            foreach (TextBox hubKey in hubKeys)
-            {
-                string key = "";
-                TableControls.TrueText(hubKey).Do(s => { key = s; }, () => { missed = true; });
-                if (missed)
-                {
-                    missed = false;
-                    continue;
-                }
-                parent.GetTable(key, TableType.Hub).Do(t => { joint.Add(t as Hub); }, () => { fail = true; });
-                if (fail)
-                    return;
-            }
-            if (joint.Count < 1)
-            {
-                MessageBox.Show("Нужно связать как минмум 2 хаба");
-                return;
-            }
+            List<Fkey> newJoint = null;
+            try{
+                TableControls.TrueText(name).Do(s => { newName = s; }, () => { throw new Exception("Link must have a name!");});
+                TableControls.TrueText(sur).Do(s => { newKey = s; }, () => { throw new Exception("Link must have a key!"); });
+                FkeyList list = FKEditor.UnloadList(hubKeys);
+                newJoint = Enumerable.Zip<string,IDataTable, Fkey>(list.Item1,list.Item2,(str, table) => new Fkey(new DataField(str), table)).ToList();
+               
+            }catch(Exception x){MessageBox.Show(x.Message); return;}
             link.Name = newName;
-            link.Joint = joint.Select<Hub,DataField>(hub=>hub.Content()[0] - FieldProperty.key + FieldProperty.fkey).ToList();
+            link.Joint = newJoint;
             foreach (int k in Enumerable.Range(0, link.Joint.Count))
-                link.Joint[k] = link.Joint[k] <= fKeyRoles[k].Selected;
+                link.Joint[k] = new Fkey( link.Joint[k].Item1 <= fKeyRoles[k].Selected, link.Joint[k].Item2);
             link.Key = new DataField(newKey);
             link.Key = link.Key <= keyRoles.Selected;
             parent.Refresh();
@@ -504,11 +532,12 @@ namespace DPMiner
             label.Name = "nameLabel";
             label.Location = new System.Drawing.Point(1, 1);
             label.Size = new Size(60, 20);
-            TextBox hub = new TextBox();
+            FKEditor hub = new FKEditor();
             hub.Text = "";
             hub.Name = "bKeyBox";
             hub.Location = new System.Drawing.Point(80, 1);
             hub.Size = new System.Drawing.Size(100, 20);
+            hub.Enter+=parent.InvokeSelector(TableType.Hub,hub);
             fKeyRoles.Add(
                     new RoleSelector(
                         new HashSet<FieldProperty> { FieldProperty.fkey },
@@ -524,38 +553,27 @@ namespace DPMiner
         {
             string newName = "";
             string newKey = "";
-            bool missed = false;
-            bool fail = false;
-            List<Hub> joint = new List<Hub>();
-            TableControls.TrueText(name).Do(s => { newName = s; }, () => { fail = true; });
-            TableControls.TrueText(sur).Do(s => { newKey = s; }, () => { fail = true; });
-            foreach (TextBox hubKey in hubKeys)
+            List<string> newNames = null;
+            List<Hub> newHubs =new List<Hub>();
+            try
             {
-                string key = "";
-                TableControls.TrueText(hubKey).Do(s => { key = s; }, () => { missed = true; });
-                if (missed)
-                {
-                    missed = false;
-                    continue;
-                }
-                parent.GetTable(key, TableType.Hub).Do(t => { joint.Add(t as Hub); }, () => { fail = true; });
-                if (fail)
-                    return;
+                TableControls.TrueText(name).Do(s => { newName = s; }, () => { throw new Exception("Link must have a name!"); });
+                TableControls.TrueText(sur).Do(s => { newKey = s; }, () => { throw new Exception("Link must have a key!"); });
+                FkeyList list = FKEditor.UnloadList(hubKeys);
+                newNames = list.Item1;
+                foreach (IDataTable table in list.Item2)
+                    newHubs.Add(table as Hub);
             }
-            if (joint.Count < 1)
-            {
-                MessageBox.Show("Нужно связать как минмум 2 хаба");
-                return;
-            }
-            Link link = new Link(newName, joint,  newKey);
+            catch (Exception x) { MessageBox.Show(x.Message); return; }
+            Link link = new Link(newName, newHubs, newNames, newKey);
             foreach (int k in Enumerable.Range(0, link.Joint.Count))
-                link.Joint[k] = link.Joint[k] <= fKeyRoles[k].Selected;
+                link.Joint[k] = new Fkey(link.Joint[k].Item1 <= fKeyRoles[k].Selected, link.Joint[k].Item2);
             link.Key = link.Key <= keyRoles.Selected;
             parent.AddTable(link);
             Table = link;
             Publish();
             Refresh();
-        
+        }
     }
     public class SateliteControls : TableControls
     {
@@ -563,16 +581,16 @@ namespace DPMiner
         int m = 3;
         TextBox sur;
         TextBox name;
-        TextBox link;
+        FKEditor link;
         RoleSelector keyRoles;
         RoleSelector fKeyRoles;
         List<TextBox> measures = new List<TextBox>();
-        List<TextBox> refKeys = new List<TextBox>();
+        List<FKEditor> refKeys = new List<FKEditor>();
         List<RoleSelector> mesRoles = new List<RoleSelector>();
         List<RoleSelector> refRoles = new List<RoleSelector>();
-        public SateliteControls(DataVaultConstructor parent) : base(parent) { }
-        public SateliteControls(IDataTable table, DataVaultConstructor parent) : base(table, parent) { }
-        public override void Edits(IDataTable table, DataVaultConstructor parent)
+        public SateliteControls(IDataVaultConstructor parent) : base(parent) { }
+        public SateliteControls(IDataTable table, IDataVaultConstructor parent) : base(table, parent) { }
+        public override void Edits(IDataTable table, IDataVaultConstructor parent)
         {
             n = 2;
             m = 3;
@@ -621,15 +639,17 @@ namespace DPMiner
             panel.Controls.Add(sur);
             panel.Controls.Add(label);
             panel = FieldPanel();
-            link = new TextBox();
+            link = new FKEditor();
             label = new Label();
             label.Text = "Link Key";
             label.Name = "kinkLabel";
             label.Location = new System.Drawing.Point(1, 1);
             link.Name = "fKeyBox";
             link.Text = fields[1].ToString();
+            link.setTable(sat.Link.Item2);
             link.Location = new System.Drawing.Point(80, 1);
             link.Size = new System.Drawing.Size(100, 20);
+            link.Enter += parent.InvokeSelector(TableType.Link, link);
             fKeyRoles = new RoleSelector(
                 new HashSet<FieldProperty> { FieldProperty.fkey },
                 new HashSet<FieldProperty> { FieldProperty.key },
@@ -663,7 +683,7 @@ namespace DPMiner
                 n = k;
             }
             m = n;
-            foreach (int k in Enumerable.Range(n, fields.Count() - sat.Count()-3))
+            foreach (int k in Enumerable.Range(0, sat.References.Count))
             {
                 panel = FieldPanel();
                 label = new Label();
@@ -671,21 +691,20 @@ namespace DPMiner
                 label.Name = "=meLabel";
                 label.Location = new System.Drawing.Point(1, 1);
                 label.Size = new Size(60, 20);
-                TextBox referance = new TextBox();
-                try{
-                referance.Text = fields[k].ToString();
-                }
-                catch (IndexOutOfRangeException) { }
-                referance.Name = "refBox";
-                referance.Location = new System.Drawing.Point(80, 1);
-                referance.Size = new System.Drawing.Size(100, 30);
+                FKEditor reference = new FKEditor();
+                reference.Text = sat.References[k].Item1.ToString();
+                reference.setTable(sat.References[k].Item2);
+                reference.Name = "refBox";
+                reference.Location = new System.Drawing.Point(80, 1);
+                reference.Size = new System.Drawing.Size(100, 30);
+                reference.Enter+=parent.InvokeSelector(TableType.Reference, reference);
                 panel.Controls.Add(label);
-                panel.Controls.Add(referance);
+                panel.Controls.Add(reference);
                 refRoles.Add(new RoleSelector(
                    new HashSet<FieldProperty> { FieldProperty.fkey},
                    new HashSet<FieldProperty> { FieldProperty.key },
-                   fields[k].Roles, panel));
-                refKeys.Add(referance);
+                   sat.References[k].Item1.Roles, panel));
+                refKeys.Add(reference);
                 m = k;
             }
             panel = ControlPanel();
@@ -721,7 +740,7 @@ namespace DPMiner
             button.Size = new System.Drawing.Size(60, 20);
             panel.Controls.Add(button);
         }
-        public override void Edits(DataVaultConstructor parent)
+        public override void Edits(IDataVaultConstructor parent)
         {
             n = 2;
             m = 3;
@@ -767,16 +786,16 @@ namespace DPMiner
             panel.Controls.Add(sur);
             panel.Controls.Add(label);
             panel = FieldPanel();
-            link = new TextBox();
+            link = new FKEditor();
             label = new Label();
             label.Text = "Link Key";
             label.Name = "kinkLabel";
             label.Location = new System.Drawing.Point(1, 1);
-            link = new TextBox();
             link.Name = "fKeyBox";
             link.Text = "";
             link.Location = new System.Drawing.Point(80, 1);
             link.Size = new System.Drawing.Size(100, 20);
+            link.Enter+=parent.InvokeSelector(TableType.Link,link);
             fKeyRoles = new RoleSelector(
                 new HashSet<FieldProperty> { FieldProperty.fkey },
                 new HashSet<FieldProperty> { FieldProperty.key },
@@ -811,14 +830,15 @@ namespace DPMiner
                 new HashSet<FieldProperty> {  FieldProperty.fkey },
                 new HashSet<FieldProperty> {  FieldProperty.key },
                 panel));
-            TextBox referance = new TextBox();
-            referance.Text = "";
-            referance.Name = "measureBox";
-            referance.Location = new System.Drawing.Point(80, 1);
-            referance.Size = new System.Drawing.Size(100, 30);
+            FKEditor reference = new FKEditor();
+            reference.Text = "";
+            reference.Name = "measureBox";
+            reference.Location = new System.Drawing.Point(80, 1);
+            reference.Size = new System.Drawing.Size(100, 30);
+            reference.Enter+=parent.InvokeSelector(TableType.Reference,reference);
             panel.Controls.Add(label);
-            panel.Controls.Add(referance);
-            refKeys.Add(referance);
+            panel.Controls.Add(reference);
+            refKeys.Add(reference);
             panel = ControlPanel();
             Button button = new Button();
             button.Name = "DDButton";
@@ -848,35 +868,30 @@ namespace DPMiner
 
             string newName = null;
             string newKey = null;
-            string fKey = null;
-            Link newLink = null;
+            Fkey newLink = null;
             List<DataField> newFields = new List<DataField>();
-            List<DataField> newRefs = new List<DataField>();
+            List<Fkey> newRefs = new List<Fkey>();
             try
             {
                 TableControls.TrueText(name).Do(s => newName = s, () => { throw new System.ArgumentException("Table must have a name!"); });
                 TableControls.TrueText(sur).Do(s => newKey = s, () => { throw new System.ArgumentException("Table must have a key!"); });
+                FKEditor.Unload(link).Do(t => newLink = t , () =>{throw new System.ArgumentException("Satelite must have a foreign key of a Link!");});
                 foreach (int k in Enumerable.Range(0,measures.Count))
                     TableControls.TrueText(measures[k]).Do(s => newFields.Add(new DataField(s) <= mesRoles[k].Selected));
+                FkeyList list = FKEditor.UnloadList(refKeys);
                 foreach (int k in Enumerable.Range(0, refKeys.Count ))
                 {
-                    try
-                    {
-                        TableControls.TrueText(refKeys[k]).Do(s => fKey = s, () => { throw new System.ArgumentException(); });
-                    }
-                    catch (ArgumentException) { continue; }
-                    parent.GetTable(fKey, TableType.Reference).Do(t => newRefs.Add(t.Content()[0] <= refRoles[k].Selected), () => { throw new ArgumentException("Referance table with key " + fKey + " not found!"); });
+                    newRefs.Add(new Fkey(new DataField(list.Item1[k]) <= refRoles[k].Selected,list.Item2[k]));
                 }
-                TableControls.TrueText(link).Do(s => fKey = s, () => { throw new System.ArgumentException(); });
-                parent.GetTable(fKey, TableType.Link).Do(t => newLink = t as Link, () => { throw new ArgumentException("Link with key " + fKey + " not found!"); });
                 Satelite satelite = Table.Load() as Satelite;
                 satelite.Name = newName;
                 satelite.Key = new DataField(newKey) <= keyRoles.Selected;
-                satelite.Link = newLink.Content()[0] <=fKeyRoles.Selected;
+                satelite.Link = new Fkey(newLink.Item1 <= fKeyRoles.Selected, newLink.Item2);
                 satelite.References = newRefs;
                 satelite.Measures = newFields;
                 parent.UpdateEditor();
                 parent.Refresh();
+                Publish();
             }
             catch (ArgumentException e) { MessageBox.Show(e.Message); }
         }
@@ -889,14 +904,15 @@ namespace DPMiner
             label.Name = "=meLabel";
             label.Location = new System.Drawing.Point(1, 1);
             label.Size = new Size(80, 20);
-            TextBox referance = new TextBox();
-            referance.Text = "";
-            referance.Name = "refBox";
-            referance.Location = new System.Drawing.Point(80, 1);
-            referance.Size = new System.Drawing.Size(100, 30);
+            FKEditor reference = new FKEditor();
+            reference.Text = "";
+            reference.Name = "refBox";
+            reference.Location = new System.Drawing.Point(80, 1);
+            reference.Size = new System.Drawing.Size(100, 30);
+            reference.Enter+=parent.InvokeSelector(TableType.Reference,reference);
             panel.Controls.Add(label);
-            panel.Controls.Add(referance);
-            refKeys.Add(referance);
+            panel.Controls.Add(reference);
+            refKeys.Add(reference);
             refRoles.Add(new RoleSelector(
                 new HashSet<FieldProperty> { FieldProperty.fkey },
                 new HashSet<FieldProperty> { FieldProperty.key },
@@ -931,34 +947,28 @@ namespace DPMiner
 
             string newName = null;
             string newKey = null;
-            string fKey = null;
-            Link newLink = null;
+            Fkey newLink = null;
             List<string> newFields = new List<string>();
             List<Reference> newRefs = new List<Reference>();
+            List<string> refNames = new List<string>();
             try
             {
                 TableControls.TrueText(name).Do(s => newName = s, () => { throw new System.ArgumentException("Table must have a name!"); });
                 TableControls.TrueText(sur).Do(s => newKey = s, () => { throw new System.ArgumentException("Table must have a key!"); });
+                FKEditor.Unload(link).Do(s => newLink = s, () =>{throw new System.ArgumentException("Satelite must have a foreign key of a Link!");} );
                 foreach (TextBox mes in measures)
-                    TableControls.TrueText(mes).Do(s => newFields.Add(s), () => { });
-                foreach (TextBox refKey in refKeys)
-                {
-                    try
-                    {
-                        TableControls.TrueText(refKey).Do(s => fKey = s, () => { throw new System.ArgumentException(); });
-                    }
-                    catch (ArgumentException) { continue; }
-                    parent.GetTable(fKey, TableType.Reference).Do(t => newRefs.Add(t as Reference), () => { throw new ArgumentException("Referance table with key " + fKey + " not found!"); });
-                }
-                TableControls.TrueText(link).Do(s => fKey = s, () => { throw new System.ArgumentException(); });
-                parent.GetTable(fKey, TableType.Link).Do(t => newLink = t as Link, () => { throw new ArgumentException("Link with key " + fKey + " not found!"); });
-                Satelite satelite = new Satelite(newName, newLink, newKey,  newFields, newRefs);
+                    TableControls.TrueText(mes).Do(s => newFields.Add(s));
+                FkeyList list = FKEditor.UnloadList(refKeys);
+                refNames =  list.Item1;
+                newRefs = Enumerable.Select<IDataTable, Reference>(list.Item2, t => t as Reference).ToList();
+                Link l = newLink.Item2 as Link;
+                Satelite satelite = new Satelite(newName, l , newLink.Item1.ToString(), newKey, newFields, newRefs, refNames);
                 satelite.Key = satelite.Key <= keyRoles.Selected;
-                satelite.Link = satelite.Link <= fKeyRoles.Selected;
+                satelite.Link = new Fkey( satelite.Link.Item1 <= fKeyRoles.Selected, satelite.Link.Item2);
                 foreach(int k in Enumerable.Range(0,satelite.Measures.Count))
                     satelite.Measures[k]= satelite.Measures[k] <= mesRoles[k].Selected;
                 foreach (int k in Enumerable.Range(0, satelite.References.Count))
-                    satelite.References[k] = satelite.References[k] <= refRoles[k].Selected;
+                    satelite.References[k] = new Fkey(satelite.References[k].Item1 <= refRoles[k].Selected,satelite.References[k].Item2);
                 parent.AddTable(satelite);
                 Table = satelite;
                 Publish();
@@ -976,25 +986,25 @@ namespace DPMiner
         RoleSelector keyRoles;
         List<TextBox> measures = new List<TextBox>();
         List<RoleSelector> mesRoles = new List<RoleSelector>();
-        public ReferenceControls(DataVaultConstructor parent) : base(parent) { }
-        public ReferenceControls(IDataTable table, DataVaultConstructor parent) : base(table, parent) { }
-        public override void Edits(IDataTable table, DataVaultConstructor parent)
+        public ReferenceControls(IDataVaultConstructor parent) : base(parent) { }
+        public ReferenceControls(IDataTable table, IDataVaultConstructor parent) : base(table, parent) { }
+        public override void Edits(IDataTable table, IDataVaultConstructor parent)
         {
             n = 1;
             Clear();
             Controls.Clear();
             measures.Clear();
-            Reference reference = table as Reference;
-            DataField[] fields = reference.Content();
             List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
-            this.AutoScroll = false;
+            this.AutoScroll = true;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new Size(300, 250);
+            this.Size = new Size(420, 175);
             this.TabIndex = 0;
+            Reference reference = table as Reference;
+            DataField[] fields = reference.Content();
             Label label = new Label();
             label.Text = "Name";
             label.Name = "nameLabel";
@@ -1024,7 +1034,7 @@ namespace DPMiner
                 fields[0].Roles, panel);
             panel.Controls.Add(sur);
             panel.Controls.Add(label);
-            foreach (int k in Enumerable.Range(1, fields.Length - 2))
+            foreach (int k in Enumerable.Range(0,  reference.Fields.Count))
             {
                 panel = FieldPanel();
                 label = new Label();
@@ -1032,18 +1042,18 @@ namespace DPMiner
                 label.Name = "nameLabel";
                 label.Location = new System.Drawing.Point(1, 1);
                 label.Size = new Size(80, 20);
-                TextBox mes = new TextBox();
-                mes.Text = fields[k].ToString();
-                mes.Name = "bKeyBox";
-                mes.Location = new System.Drawing.Point(80, 1);
-                mes.Size = new System.Drawing.Size(100, 30);
+                TextBox field = new TextBox();
+                field.Text = reference.Fields[k].ToString();
+                field.Name = "bKeyBox";
+                field.Location = new System.Drawing.Point(80, 1);
+                field.Size = new System.Drawing.Size(100, 1);
                 mesRoles.Add(new RoleSelector(
-                   new HashSet<FieldProperty> { },
-                   new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key },
-                   fields[k].Roles,panel));
+                  new HashSet<FieldProperty> { },
+                  new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key },
+                  reference.Fields[k].Roles, panel));
                 panel.Controls.Add(label);
-                panel.Controls.Add(mes);
-                measures.Add(mes);
+                panel.Controls.Add(field);
+                measures.Add(field);
                 n = k;
             }
             panel = ControlPanel();
@@ -1051,7 +1061,7 @@ namespace DPMiner
             button.Name = "UpdateButton";
             button.Text = "Update";
             button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(60, 20);
+            button.Size = new System.Drawing.Size(80, 20);
             button.Click += UpdateRef;
             panel.Controls.Add(button);
             button = new Button();
@@ -1060,17 +1070,17 @@ namespace DPMiner
             button.Click += parent.Delete;
             button.Click += OnDelete;
             button.Location = new System.Drawing.Point(80, 1);
-            button.Size = new System.Drawing.Size(60, 20);
+            button.Size = new System.Drawing.Size(80, 20);
             panel.Controls.Add(button);
             button = new Button();
-            button.Name = "newHubButton";
-            button.Text = "Add";
+            button.Name = "newFieldButton";
+            button.Text = "Add Field";
             button.Click += AddField;
             button.Location = new System.Drawing.Point(160, 1);
-            button.Size = new System.Drawing.Size(60, 20);
+            button.Size = new System.Drawing.Size(80, 20);
             panel.Controls.Add(button);
         }
-        public override void Edits(DataVaultConstructor parent)
+        public override void Edits(IDataVaultConstructor parent)
         {
             n = 1;
             Clear();
@@ -1079,7 +1089,7 @@ namespace DPMiner
             List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
-            this.AutoScroll = false;
+            this.AutoScroll = true;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "HubControls";
@@ -1168,6 +1178,7 @@ namespace DPMiner
                 reference.Fields = newFields;
                 parent.UpdateEditor();
                 parent.Refresh();
+                Publish();
             }
             catch (ArgumentException e) { MessageBox.Show(e.Message); }
         }
@@ -1189,8 +1200,9 @@ namespace DPMiner
                 foreach (int k in Enumerable.Range(0, reference.Fields.Count))
                     reference.Fields[k] = reference.Fields[k] <= mesRoles[k].Selected;
                 Table = reference;
-                Publish();
                 parent.AddTable(reference);
+                Publish();
+                Refresh();
             }
             catch (ArgumentException e) { MessageBox.Show(e.Message); }
         }
@@ -1214,8 +1226,9 @@ namespace DPMiner
               panel));
             panel.Controls.Add(label);
             panel.Controls.Add(field);
+            measures.Add(field);
             Refresh();
         }
     }
-    
-}
+    }  
+

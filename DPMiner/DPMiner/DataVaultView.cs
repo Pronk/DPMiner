@@ -8,6 +8,7 @@ using System.Drawing;
 
 namespace DPMiner
 {
+    
     public interface IView
     {
         void Renew();
@@ -16,8 +17,8 @@ namespace DPMiner
     {
         List<IDataTable> tables;
         Panel panel;
-        DataVaultConstructor parent;
-        public DataVaultFormView(List<IDataTable> tables, DataVaultConstructor parent)
+        IDataVaultConstructor parent;
+        public DataVaultFormView(List<IDataTable> tables, IDataVaultConstructor parent)
         {
             this.parent = parent;
             panel = new Panel();
@@ -26,11 +27,11 @@ namespace DPMiner
             | System.Windows.Forms.AnchorStyles.Right)));
             panel.AutoScroll = true;
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            panel.Location = new System.Drawing.Point(parent.Width - 173, -1);
+            panel.Dock = DockStyle.Right;
             panel.Name = "panelVault";
             panel.Size = new System.Drawing.Size(158, 331);
             panel.TabIndex = 0;
-            this.parent.Controls.Add(panel);
+            this.parent.Add(panel);
 
             
              
@@ -66,13 +67,13 @@ namespace DPMiner
     {
         
         IDataTable self;
-        DataVaultConstructor parent;
+        IDataVaultConstructor parent;
         Panel panel;
-        public DataTableView(IDataTable self, DataVaultConstructor parent)
+        public DataTableView(IDataTable self, IDataVaultConstructor parent)
         {
             this.self = self;
             this.parent = parent;
-            this.parent.Controls.RemoveByKey("panelTable");
+            this.parent.RemoveByKey("panelTable");
             panel = new Panel();
             panel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -80,9 +81,9 @@ namespace DPMiner
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             panel.Location = new System.Drawing.Point(100, 200);
             panel.Name = "panelTable";
-            panel.Size = new System.Drawing.Size(parent.Width - 273, parent.Height - 200);
+            panel.Size = new System.Drawing.Size(parent.Width() - 273, parent.Height() - 200);
             panel.TabIndex = 0;
-            this.parent.Controls.Add(panel);
+            this.parent.Add(panel);
             Label tableLabel = new Label();
             tableLabel.Text = self.ToString();
             tableLabel.Name = self.ToString();
@@ -115,9 +116,9 @@ namespace DPMiner
     public class TableEditor:IView
     {
         IDataTable self;
-        DataVaultConstructor parent;
+        IDataVaultConstructor parent;
         Panel panel;
-        public TableEditor(IDataTable self, DataVaultConstructor parent )
+        public TableEditor(IDataTable self, IDataVaultConstructor parent )
         {
             this.self = self;
             this.parent = parent;
@@ -136,7 +137,7 @@ namespace DPMiner
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             panel.Location = new System.Drawing.Point(-1, -1);
             panel.Name = "panelEditor";
-            panel.Size = new System.Drawing.Size(parent.Width - 173, 200);
+            panel.Size = new System.Drawing.Size(parent.Width() - 173, 200);
             panel.TabIndex = 0;
             Label label = new Label();
             label.Text = Program.Util.Typename(trueType) + " " + self.ToString();
@@ -145,10 +146,10 @@ namespace DPMiner
             label.Top = 10;
             label.Size = new System.Drawing.Size(160, 15);
             panel.Controls.Add(label);
-            parent.Controls.RemoveByKey("panelEditor");
-            this.parent.Controls.Add(panel);
+            parent.RemoveByKey("panelEditor");
+            this.parent.Add(panel);
         }
-        public TableEditor(TableType type, DataVaultConstructor parent)
+        public TableEditor(TableType type, IDataVaultConstructor parent)
         {
             this.parent = parent;
             panel = new Panel();
@@ -158,7 +159,7 @@ namespace DPMiner
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             panel.Location = new System.Drawing.Point(-1, -1);
             panel.Name = "panelEditor";
-            panel.Size = new System.Drawing.Size(parent.Width - 173, 200);
+            panel.Size = new System.Drawing.Size(parent.Width() - 173, 200);
             panel.TabIndex = 0;
             Label label = new Label();
             label.Text = type.ToString() + ". Enter the name.";
@@ -167,8 +168,8 @@ namespace DPMiner
             label.Top = 10;
             label.Size = new System.Drawing.Size(160, 15);
             panel.Controls.Add(label);
-            parent.Controls.RemoveByKey("panelEditor");
-            this.parent.Controls.Add(panel);
+            parent.RemoveByKey("panelEditor");
+            this.parent.Add(panel);
         }
 
         public void Renew()

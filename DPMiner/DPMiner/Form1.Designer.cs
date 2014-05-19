@@ -35,6 +35,8 @@
             this.catButton = new System.Windows.Forms.Button();
             this.buttonNext = new System.Windows.Forms.Button();
             this.dataVault = new DPMiner.SimpleEditor();
+            this.candidates = new System.Windows.Forms.ListBox();
+            this.dataVault.SuspendLayout();
             this.SuspendLayout();
             // 
             // exitButton
@@ -92,16 +94,27 @@
             this.buttonNext.TabIndex = 6;
             this.buttonNext.Text = "=>";
             this.buttonNext.UseVisualStyleBackColor = true;
+            this.buttonNext.Click += new System.EventHandler(this.buttonNext_Click);
             // 
             // dataVault
             // 
             this.dataVault.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataVault.Location = new System.Drawing.Point(11, 61);
+            this.dataVault.Controls.Add(this.candidates);
+            this.dataVault.Location = new System.Drawing.Point(2, 61);
             this.dataVault.Name = "dataVault";
             this.dataVault.Size = new System.Drawing.Size(618, 449);
             this.dataVault.TabIndex = 0;
+            // 
+            // candidates
+            // 
+            this.candidates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.candidates.FormattingEnabled = true;
+            this.candidates.Location = new System.Drawing.Point(3, 206);
+            this.candidates.Name = "candidates";
+            this.candidates.Size = new System.Drawing.Size(89, 238);
+            this.candidates.TabIndex = 2;
             // 
             // Form1
             // 
@@ -117,6 +130,7 @@
             this.Controls.Add(this.dataVault);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.dataVault.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -130,6 +144,7 @@
         private System.Windows.Forms.Button sateliteButton;
         private System.Windows.Forms.Button catButton;
         private System.Windows.Forms.Button buttonNext;
+        private System.Windows.Forms.ListBox candidates;
 
        
 

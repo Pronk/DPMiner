@@ -10,6 +10,7 @@ using Monad;
 namespace DPMiner
 {
     using Fkey = Tuple<DataField, IDataTable>;
+    using DataVaultSetup = Dictionary<FieldProperty, Dictionary<string, List<DataField>>>;
     public  enum FieldProperty : byte
     {
         pID, pVal, time, key, fkey
@@ -64,8 +65,8 @@ namespace DPMiner
     public interface IDataTable
     {
          DataField[] Content();
-         IView Preview(DataVaultConstructor constructor);
-         IView Editor(DataVaultConstructor constructor);
+         IView Preview(IDataVaultConstructor constructor);
+         IView Editor(IDataVaultConstructor constructor);
          TableType Type();
          string GetName();
      
@@ -77,11 +78,11 @@ namespace DPMiner
         static uint idCount = 0;
         public abstract DataField[] Content();
         public abstract TableType Type();
-        public IView Preview(DataVaultConstructor constructor)
+        public IView Preview(IDataVaultConstructor constructor)
         {
             return new DataTableView(this, constructor);
         }
-        public virtual IView Editor(DataVaultConstructor constructor)
+        public virtual IView Editor(IDataVaultConstructor constructor)
         {
             return new TableEditor(this, constructor);
         }
@@ -136,7 +137,7 @@ namespace DPMiner
         {
             this.iD = new DataField(iD) + FieldProperty.key;
         }
-        public override IView Editor(DataVaultConstructor constructor)
+        public override IView Editor(IDataVaultConstructor constructor)
         {
             IView view = base.Editor(constructor);
             HubControls edits = new HubControls(this, constructor);
@@ -193,7 +194,7 @@ namespace DPMiner
             this.joint = Enumerable.Zip<string, IDataTable, Fkey>(fKeys, joint, (str, table) => new Fkey(new DataField(str), table)).ToList();
             this.surID = new DataField(surID) + FieldProperty.key;
         }
-        public override IView Editor(DataVaultConstructor constructor)
+        public override IView Editor(IDataVaultConstructor constructor)
         {
             IView view = base.Editor(constructor);
             LinkControls edits = new LinkControls(this, constructor);
@@ -246,7 +247,7 @@ namespace DPMiner
        {
            return TableType.Reference;
        }
-       public override IView Editor(DataVaultConstructor constructor)
+       public override IView Editor(IDataVaultConstructor constructor)
        {
            IView view = base.Editor(constructor);
            ReferenceControls edits = new ReferenceControls(this, constructor);
@@ -310,7 +311,7 @@ namespace DPMiner
        {
            return TableType.Satelite;
        }
-       public override IView Editor(DataVaultConstructor constructor)
+       public override IView Editor(IDataVaultConstructor constructor)
        {
            IView view = base.Editor(constructor);
            SateliteControls edits = new SateliteControls(this, constructor);
@@ -321,9 +322,9 @@ namespace DPMiner
     public interface IDataVault
     {
        
-        DataVaultFormView View(DataVaultConstructor constructor);
+        DataVaultFormView View(IDataVaultConstructor constructor);
         IDataVaultControl Control();
-        Dictionary<FieldProperty, Dictionary<string, List<DataField>>> Logic();
+        DataVaultSetup Logic();
 
     }
     public class DataVault:IDataVault
@@ -337,7 +338,7 @@ namespace DPMiner
             name = str;
             tables = new List<IDataTable>();
         }
-        public DataVaultFormView View(DataVaultConstructor constructor)
+        public DataVaultFormView View(IDataVaultConstructor constructor)
         {
             return new DataVaultFormView(tables, constructor);
         }
@@ -345,9 +346,9 @@ namespace DPMiner
         {
             return new DataVualtControl(tables);
         }
-        public Dictionary<FieldProperty, Dictionary<string, List<DataField>>> Logic()
+        public DataVaultSetup Logic()
         {
-            Dictionary<FieldProperty, Dictionary<string, List<DataField>>> logic = new Dictionary<FieldProperty, Dictionary<string, List<DataField>>>();
+            DataVaultSetup logic = new DataVaultSetup();
             foreach(FieldProperty fp in Enum.GetValues(typeof( FieldProperty)))
             {
                 Dictionary<string, List<DataField>> lists = new Dictionary<string, List<DataField>>();

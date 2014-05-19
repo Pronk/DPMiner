@@ -9,72 +9,114 @@ using Monad;
 
 namespace DPMiner
 {
-   
-        public abstract class DataVaultConstructor : Panel
+        using DataVaultSetup = Dictionary<FieldProperty, Dictionary<string, List<DataField>>>;
+        public interface IDataVaultConstructor 
         {
-            public abstract void PreviewTable(object sender, EventArgs e);
-            public abstract void Edit(object sender, EventArgs e);
-            public abstract void Delete(object sender, EventArgs e);
-            public abstract void UpdateEditor();
-            public abstract void NewEditor(TableType type);
-            public abstract void AddTable(IDataTable table);
-            public abstract void NewHub(object sender, EventArgs e);
-            public abstract void NewLink(object sender, EventArgs e);
-            public abstract void NewSatelite(object sender, EventArgs e);
-            public abstract void NewReference(object sender, EventArgs e);
-            public abstract Maybe<IDataTable> GetTable(string Key, TableType type);
-            public EventHandler Tables(TableType t);
-            public ListBox Candidates();
-            private void InitializeComponent()
-            {
-                this.SuspendLayout();
-                // 
-                // DataVaultConstructor
-                // 
-                this.ClientSize = new System.Drawing.Size(452, 407);
-                this.Name = "DataVaultConstructor";
-                this.ResumeLayout(false);
+             void PreviewTable(object sender, EventArgs e);
+             void Edit(object sender, EventArgs e);
+             void Delete(object sender, EventArgs e);
+             void UpdateEditor();
+             void NewEditor(TableType type);
+             void AddTable(IDataTable table);
+             void NewHub(object sender, EventArgs e);
+             void NewLink(object sender, EventArgs e);
+             void NewSatelite(object sender, EventArgs e);
+             void NewReference(object sender, EventArgs e);
+             Maybe<IDataTable> GetTable(string Key, TableType type);
+             EventHandler InvokeSelector(TableType t, FKEditor editor);
+             void OnLeave(Object sender, EventArgs e);
+             void Add(Control control);
+             void AddToEditor(Control control);
+             void RemoveByKey(string key);
+             int Height();
+             int Width();
+             void Refresh();
+            //private void InitializeComponent()
+            //{
+            //    this.SuspendLayout();
+            //    // 
+            //    // DataVaultConstructor
+            //    // 
+            //    this.ClientSize = new System.Drawing.Size(452, 407);
+            //    this.Name = "DataVaultConstructor";
+            //    this.ResumeLayout(false);
 
                 
-            }
+            //}
 
         }
-        public  class SimpleEditor : DataVaultConstructor
+        public  class SimpleEditor : Panel,IDataVaultConstructor,IMiningState
         {
             IView tables;
             IView editor;
+            EventHandler onSelect=null;
             IDataVaultControl control;
             ListBox candidates;
+            IDataVault model;
+            public void setCandidates(ListBox lb)
+            {
+                candidates = lb;
+            }
             public SimpleEditor()
             {
-                IDataVault model = new DataVault("test");
+                model = new DataVault("test");
                 tables = model.View(this);
                 control = model.Control();
 
-                candidates = new ListBox();
-                candidates.Location = new Point(-1, 200);
-                candidates.Size = new Size(100, this.Height - 200);
-                candidates.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-                this.Controls.Add(candidates);
             }
-
-            public ListBox Candidates()
+            public void Add(Control control)
             {
-                return candidates;
+                Controls.Add(control);
             }
-            public EventHandler Tables(TableType t)
+            public void AddToEditor(Control control)
+            {
+                Controls["panelEditor"].Controls.Add(control);
+            }
+            public void RemoveByKey(string key)
+            {
+                Controls.RemoveByKey(key);
+            }
+            public int Height()
+            {
+                return base.Height;
+            }
+            public int Width()
+            {
+                return base.Width;
+            }
+            public  DataVaultSetup GetSetup()
+            {
+                return model.Logic();
+            }
+            
+            public  void OnLeave(Object sender, EventArgs e)
+            {
+                candidates.Items.Clear();
+                candidates.Refresh();
+                
+            }
+            public  EventHandler InvokeSelector(TableType t, FKEditor editor)
             {
                 return (o,e) =>{
-                candidates.Items.Clear();
-                candidates.Items.AddRange(control.GetTables(t).ToArray());
+                    if (onSelect != null)
+                        candidates.SelectedIndexChanged -= onSelect;
+                    candidates.Items.Clear();
+                    candidates.Items.AddRange(control.GetTables(t).ToArray());
+                    editor.getTable().Do(table => candidates.SetSelected(candidates.Items.IndexOf(table),true));
+                    onSelect = (o2, e2) =>
+                    {
+                        editor.setTable(candidates.SelectedItem as IDataTable);
+                    };
+                    candidates.SelectedIndexChanged += onSelect;
+                    //candidates.Refresh();
                 };
             }
-            public override void Delete(object sender, EventArgs e)
+            public  void Delete(object sender, EventArgs e)
             {
                 try
                 {
                     Button clicked = sender as Button;
-                    TableControls edits = clicked.Parent as TableControls;
+                    TableControls edits = clicked.Parent.Parent as TableControls;
                     Action<IDataTable> delete = (t) =>
                     {
                         if (control.TryRemove(t.ToString()))
@@ -88,64 +130,86 @@ namespace DPMiner
                 catch (InvalidCastException x) { };
 
             }
-            public override void PreviewTable(object sender, EventArgs e)
+            public  void PreviewTable(object sender, EventArgs e)
             {
                 Label table = sender as Label;
                 control.GetTable(table.Text).Do(t => t.Preview(this));
                 this.Refresh();
             }
-            public override void Edit(object sender, EventArgs e)
+            public  void Edit(object sender, EventArgs e)
             {
                 Label table = sender as Label;
                 control.GetTable(table.Text).Do(t => editor = t.Editor(this));
                 this.Refresh();
             }
-            public override void Refresh()
+            public  void Refresh()
             {
                 base.Refresh();
                 tables.Renew();
             }
-            public override void UpdateEditor()
+            public  void UpdateEditor()
             {
                 editor.Renew();
             }
-            public override void NewEditor(TableType type)
+            public  void NewEditor(TableType type)
             {
                 Controls.RemoveByKey("panelEditor");
                 editor = new TableEditor(type, this);
             }
-            public override void AddTable(IDataTable table)
+            public  void AddTable(IDataTable table)
             {
                 control.Add(table);
                 Controls.RemoveByKey("panelEditor");
                 editor = new TableEditor(table, this);
                 this.Refresh();
             }
-            public override Maybe<IDataTable> GetTable(string key, TableType type)
+            public  Maybe<IDataTable> GetTable(string key, TableType type)
             {
                 Maybe<IDataTable> result = control.GetTable(key, type);
                 result.Do(t => { }, () => MessageBox.Show("Неверно указана связь по ключам!"));
                 return result;
             }
-            public override void NewHub(object sender, EventArgs e)
+            public  void NewHub(object sender, EventArgs e)
             {
                 editor = new TableEditor(TableType.Hub, this);
                 new HubControls(this).Publish();
             }
-            public override void NewLink(object sender, EventArgs e)
+            public  void NewLink(object sender, EventArgs e)
             {
                 editor = new TableEditor(TableType.Link, this);
                 new LinkControls(this).Publish();
             }
-            public override void NewSatelite(object sender, EventArgs e)
+            public  void NewSatelite(object sender, EventArgs e)
             {
                 editor = new TableEditor(TableType.Satelite, this);
                 new SateliteControls(this).Publish();
             }
-            public override void NewReference(object sender, EventArgs e)
+            public  void NewReference(object sender, EventArgs e)
             {
                 editor = new TableEditor(TableType.Reference, this);
                 new ReferenceControls(this).Publish();
+            }
+            public IMiningState Next()
+            {
+                if (!control.IsConnected())
+                    throw new ArgumentException("DataBase is not Linked properly by keys!");
+                ProcessLogic logic = new ProcessLogic(GetSetup());
+                LogicView logicView = new LogicView(logic);
+                logicView.Size = Size;
+                logicView.Location = Location;
+                return logicView;
+            }
+            public new Control Handle()
+            {
+                return this;
+            }
+            public bool IsEnd()
+            { return false; }
+            public bool HideControls()
+            { return false; }
+            public Stages Stage()
+            {
+                return Stages.dataVault;
             }
         }
     }

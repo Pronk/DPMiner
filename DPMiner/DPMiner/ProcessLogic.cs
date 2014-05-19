@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPMiner
 {
-     interface  LState
+    public interface  LState
     {
         bool Eval(Dictionary<string, bool> values);
     }
@@ -21,12 +21,12 @@ namespace DPMiner
         {
             return values[var];
         }
-        public new string ToString()
+        public override string ToString()
         {
             return var;
         }
     }
-    class LogAnd : LState
+ class LogAnd : LState
     {
         LState first;
         LState second;
@@ -39,12 +39,12 @@ namespace DPMiner
         {
             return first.Eval(values) && second.Eval(values);
         }
-        public new string ToString()
+        public override string ToString()
         {
             return "(" + first.ToString() +" & " + second.ToString() +")";
         }
     }
-    class LogOr : LState
+     class LogOr : LState
     {
         LState first;
         LState second;
@@ -57,12 +57,12 @@ namespace DPMiner
         {
             return first.Eval(values) || second.Eval(values);
         }
-        public new string ToString()
+        public override string ToString()
         {
             return "(" + first.ToString() + " v " + second.ToString() + ")";
         }
     }
-    class LogNeg : LState
+     class LogNeg : LState
     {
         LState neg;
         public LogNeg(LState negated)
@@ -73,7 +73,7 @@ namespace DPMiner
         {
             return !neg.Eval(values);
         }
-        public new string ToString()
+        public override string ToString()
         {
             return "~" + neg.ToString();
         }            
