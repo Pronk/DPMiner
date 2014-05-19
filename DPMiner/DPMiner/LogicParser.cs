@@ -8,7 +8,7 @@ namespace DPMiner
 {
     public interface ILogicControl
     {
-        EventHandler Compile(Action successCase, Action errorCase);
+        EventHandler Compile(Action successCase, Action<int> errorCase);
         EventHandler Return();
         EventHandler AddSelected();
         ProcessLogic Logic();
@@ -22,19 +22,22 @@ namespace DPMiner
             this.text = text;
             this.parent = parent;
         }
-        public EventHandler Compile(Action successCase, Action errorCase)
+        public EventHandler Compile(Action successCase, Action<int> errorCase)
         {
             
            return (o, e) =>
             {
-                try
-                {
+               
+                 
                     List<EventLogic> newLogic = new List<EventLogic>();
                     foreach (string line in text.Lines)
+                        try
+                        {
                         newLogic.Add(Parse(line));
+                        }
+                        catch (ArgumentException) { errorCase(text.Lines.ToList().IndexOf(line) + 1); return; }
                     parent.ProcessEvents = newLogic;
-                }
-                catch (ArgumentException) { errorCase(); }
+                
                 successCase();
             };
         }
@@ -80,7 +83,10 @@ namespace DPMiner
                 else
                     throw new ArgumentException();
             }
-            return new LogVal(str);
+            if (parent.ProcessValues.Contains(str))
+                return new LogVal(str);
+            else 
+                throw new ArgumentException();
         }
             
         private Tuple<string,string,string> Split(string str)

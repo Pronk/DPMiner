@@ -65,7 +65,7 @@ namespace DPMiner
             Controls.Add(processList);
 
             processList.Click += control.AddSelected();
-            compileButton.Click += control.Compile(InvokeMessage("Logic compiled well!"),InvokeMessage("Compilation failed!"));
+            compileButton.Click += control.Compile(InvokeMessage("Logic compiled well!"),InvokeNumberedMessage("Compilation failed on line"));
             restoreButton.Click+=control.Return();
             
         }
@@ -85,6 +85,7 @@ namespace DPMiner
                     messanger.ReportProgress(0, message);
                     Thread.Sleep(time);
                     messanger.ReportProgress(0, "");
+                    e.Cancel = true;
                 };
         }
         public bool IsEnd()
@@ -104,7 +105,24 @@ namespace DPMiner
         }
         private Action InvokeMessage( string message)
         {
-            return () => messanger.RunWorkerAsync(message);
+
+            return () => { Clean(); messanger.RunWorkerAsync(message); };
+        }
+        private Action<int> InvokeNumberedMessage(string message)
+        {
+
+            return (n) => { Clean(); messanger.RunWorkerAsync(message + " " + n.ToString()); };
+        }
+        private void Clean()
+        {
+            if(messanger.IsBusy)
+            {
+                messanger.Dispose();
+                messanger = new BackgroundWorker();
+                messanger.DoWork += ShowAndHide(2500);
+                messanger.WorkerReportsProgress = true;
+                messanger.ProgressChanged += Print();
+            }
         }
     }
 }
