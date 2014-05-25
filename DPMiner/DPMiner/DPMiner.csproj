@@ -85,6 +85,7 @@
     <Compile Include="TableEdits.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="VisualPetri.cs" />
     <Compile Include="WaitScreen.cs">
       <SubType>Component</SubType>
     </Compile>
