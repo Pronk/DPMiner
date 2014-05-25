@@ -9,6 +9,16 @@ using Monad;
 
 namespace DPMiner
 {
+    public static class ThreadSafeRandom
+    {
+        [ThreadStatic]
+        private static Random Local;
+
+        public static Random ThisThreadsRandom
+        {
+            get { return Local ?? (Local = new Random(unchecked(Environment.TickCount * 31 + Thread.CurrentThread.ManagedThreadId))); }
+        }
+    }
     static class Program
     {
         /// <summary>
@@ -20,7 +30,7 @@ namespace DPMiner
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-          
+
         }
         public static class Util
         {
@@ -41,12 +51,12 @@ namespace DPMiner
 
                 return new Tuple<int, int>(n, m);
             }
-            
-            public static bool IsContained<t>(IEnumerable<t> container, IEnumerable<t> contained) where t : IEquatable<t>
+
+            public static bool IsContained<T>(IEnumerable<T> container, IEnumerable<T> contained) where T : IEquatable<T>
             {
                 bool b = true;
-                foreach (t el1 in contained)
-                    foreach (t el2 in container)
+                foreach (T el1 in contained)
+                    foreach (T el2 in container)
                     {
                         if (el1.Equals(el2))
                         {
@@ -54,13 +64,25 @@ namespace DPMiner
                             break;
                         }
                     }
-                    if (b)
-                        return false;
+                if (b)
+                    return false;
                 return true;
             }
             public static string Typename(Type t)
             {
                 return t.ToString().Split(new char[] { '.' })[1];
+            }
+            public static void Shuffle<T>(this IList<T> list)
+            {
+                int n = list.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int k = ThreadSafeRandom.ThisThreadsRandom.Next(n + 1);
+                    T value = list[k];
+                    list[k] = list[n];
+                    list[n] = value;
+                }
             }
         }
     }
