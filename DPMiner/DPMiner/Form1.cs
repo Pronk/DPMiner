@@ -50,7 +50,10 @@ namespace DPMiner
             }
             catch (ArgumentException x) { MessageBox.Show(x.Message); }
         }
-
+        public void Next()
+        {
+            buttonNext_Click(this, new EventArgs());
+        }
        
 
        

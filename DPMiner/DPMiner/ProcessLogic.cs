@@ -106,16 +106,16 @@ namespace DPMiner
     }
     public class ProcessLogic 
     {                                            
-         Dictionary<string, List<DataField>> raf;
+         Dictionary<string, List<string>> raf;
          List<EventLogic> process = new List<EventLogic>();
-         public ProcessLogic (Dictionary<FieldProperty, Dictionary<string, List<DataField>>> logic)
+         public ProcessLogic (DVSetup setup )
          {
-             raf = logic[FieldProperty.pVal];
-             foreach(KeyValuePair<string,List<DataField>> pair in raf)
+             raf = setup.ProcessVariables;
+             foreach(KeyValuePair<string,List<string>> pair in raf)
              {
                  string table = pair.Key;
-                 foreach (DataField df in pair.Value)
-                     process.Add(new EventLogic(table +"." + df.ToString(), new LogVal(table+ "." + df.ToString())));
+                 foreach (string df in pair.Value)
+                     process.Add(new EventLogic(table +"." + df, new LogVal(table+ "." + df)));
              }
          }
          public List<EventLogic> ProcessEvents
@@ -128,11 +128,11 @@ namespace DPMiner
              get 
              {
                  List<string> values = new List<string>();
-                 foreach (KeyValuePair<string, List<DataField>> pair in raf)
+                 foreach (KeyValuePair<string, List<string>> pair in raf)
                  {
                      string table = pair.Key;
-                     foreach (DataField df in pair.Value)
-                         values.Add(table + "." + df.ToString());
+                     foreach (string df in pair.Value)
+                         values.Add(table + "." + df);
                  }
                  return values;
              }

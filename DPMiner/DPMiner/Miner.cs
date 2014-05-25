@@ -12,7 +12,7 @@ namespace DPMiner
 	 IPetriNet Mine(int[][] log);
 
     }
-	public class AlphaMiner
+	public class AlphaMiner:ProcessMiner
 	{
 	private int size;
         private List<Tuple<int, int>> followers = new List<Tuple<int, int>>();

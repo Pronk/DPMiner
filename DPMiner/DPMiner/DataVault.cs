@@ -10,7 +10,6 @@ using Monad;
 namespace DPMiner
 {
     using Fkey = Tuple<DataField, IDataTable>;
-    using DataVaultSetup = Dictionary<FieldProperty, Dictionary<string, List<DataField>>>;
     public  enum FieldProperty : byte
     {
         pID, pVal, time, key, fkey
@@ -324,9 +323,10 @@ namespace DPMiner
        
         DataVaultFormView View(IDataVaultConstructor constructor);
         IDataVaultControl Control();
-        DataVaultSetup Logic();
+        DVSetup Logic();
 
     }
+    [Serializable]
     public class DataVault:IDataVault
     {
        
@@ -346,19 +346,9 @@ namespace DPMiner
         {
             return new DataVualtControl(tables);
         }
-        public DataVaultSetup Logic()
+        public DVSetup Logic
         {
-            DataVaultSetup logic = new DataVaultSetup();
-            foreach(FieldProperty fp in Enum.GetValues(typeof( FieldProperty)))
-            {
-                Dictionary<string, List<DataField>> lists = new Dictionary<string, List<DataField>>();
-                foreach(IDataTable table in tables)
-                {
-                    lists.Add(table.GetName(), table.Content().Where(d => d.Roles.Contains(fp)).ToList());
-                }
-                logic.Add(fp, lists);
-            }
-            return logic;
+            get { return new DVSetup(tables); }
         }
         
     }

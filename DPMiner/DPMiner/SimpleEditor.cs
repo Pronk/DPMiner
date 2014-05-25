@@ -84,7 +84,7 @@ namespace DPMiner
             {
                 return base.Width;
             }
-            public  DataVaultSetup GetSetup()
+            private  DVSetup GetSetup()
             {
                 return model.Logic();
             }

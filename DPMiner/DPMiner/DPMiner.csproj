@@ -49,12 +49,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Alphabeth.cs" />
+    <Compile Include="DVSetup.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="DataVault.cs" />
     <Compile Include="DataVaultView.cs" />
     <Compile Include="DVControl.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="IDataStream.cs" />
     <Compile Include="IMiningState.cs" />
+    <Compile Include="LogBuilder.cs" />
     <Compile Include="LogicParser.cs" />
     <Compile Include="LogicView.cs">
       <SubType>Component</SubType>
@@ -78,6 +82,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="TableEdits.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WaitScreen.cs">
       <SubType>Component</SubType>
     </Compile>
     <EmbeddedResource Include="Form1.resx">
