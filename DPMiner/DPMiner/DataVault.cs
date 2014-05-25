@@ -346,9 +346,9 @@ namespace DPMiner
         {
             return new DataVualtControl(tables);
         }
-        public DVSetup Logic
+        public DVSetup Logic()
         {
-            get { return new DVSetup(tables); }
+             return new DVSetup(tables); 
         }
         
     }

@@ -56,6 +56,7 @@
     <Compile Include="DataVaultView.cs" />
     <Compile Include="DVControl.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Global.cs" />
     <Compile Include="IDataStream.cs" />
     <Compile Include="IMiningState.cs" />
     <Compile Include="LogBuilder.cs" />

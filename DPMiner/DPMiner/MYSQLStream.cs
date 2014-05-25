@@ -11,7 +11,7 @@ namespace DPMiner
 
     class MySqlStream : IDataStream
     {
-        MySqlConnection connection = new MySqlConnection(Connection.Connection());
+        MySqlConnection connection = new MySqlConnection(Connection.Connect());
         MySqlDataReader reader;
         DVSetup setup;
         public MySqlStream(DVSetup setup)
@@ -26,9 +26,9 @@ namespace DPMiner
         }
         public override string ToString()
         {
-            return "(" + Connection.Connection() + ") WITH:" + SelectStatement(setup);
+            return "(" + Connection.Connect() + ") WITH:" + SelectStatement(setup);
         }
-        Dictionary<string, string> ReadTuple()
+        public Dictionary<string, string> ReadTuple()
         {
             Dictionary<string,string> fetch = new Dictionary<string,string>();
             string str = "";

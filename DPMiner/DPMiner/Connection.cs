@@ -27,12 +27,12 @@ namespace DPMiner
             get { return source; }
             set { source = value; }                                                       
         }
-        public static string DataBase
+        public static string Password
         {
-            get { return source; }
-            set { source = value; }                                                       
+            get { return pass; }
+            set { pass = value; }                                                       
         }
-        public static string Connection()
+        public static string Connect()
         {
             return "Database="+db+";Data Source="+source+";User Id="+username+";Password=" +pass;
         }

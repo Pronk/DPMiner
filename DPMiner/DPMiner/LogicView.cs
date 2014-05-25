@@ -71,7 +71,11 @@ namespace DPMiner
         }
         public IMiningState Next()
         {
-            return this;
+            Global.Logic = control.Logic().ProcessEvents;
+            WaitScreen screen = new WaitScreen(new LogBuilder(new MySqlStream(Global.Setup), Global.Setup, control.Logic().ProcessEvents, MultyEventSolution.drop));
+            screen.Size = Size;
+            screen.Location = Location;
+            return screen;
         }
         public new Control Handle()
         {

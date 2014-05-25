@@ -191,8 +191,10 @@ namespace DPMiner
             }
             public IMiningState Next()
             {
+                Global.DataVault = model;
+                Global.Setup = GetSetup();
                 if (!control.IsConnected())
-                    throw new ArgumentException("DataBase is not Linked properly by keys!");
+                    throw new ArgumentException("Database is not Linked properly by keys!");
                 ProcessLogic logic = new ProcessLogic(GetSetup());
                 LogicView logicView = new LogicView(logic);
                 logicView.Size = Size;

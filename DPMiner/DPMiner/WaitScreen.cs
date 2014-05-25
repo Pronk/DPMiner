@@ -19,7 +19,7 @@ namespace DPMiner
         {
             return this;
         }
-        public bool isEnd()
+        public bool IsEnd()
         {
             return true;
         }
