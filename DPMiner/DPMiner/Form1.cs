@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace DPMiner
 {
-    using DataVaultSetup = Dictionary<FieldProperty, Dictionary<string, List<DataField>>>;
+  
     public partial class Form1 : Form
     {
         IMiningState current ;

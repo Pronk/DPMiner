@@ -7,9 +7,11 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.ComponentModel;
 using System.Threading;
+using DPMiner;
+using DataVault;
 
 
-namespace DPMiner
+namespace Logic
 {
    
     public class LogicView : Panel, IMiningState

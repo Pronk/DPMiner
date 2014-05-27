@@ -1,4 +1,5 @@
-﻿namespace DPMiner
+﻿using DataVault;
+namespace DPMiner
 {
     partial class Form1
     {

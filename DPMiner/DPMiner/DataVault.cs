@@ -7,7 +7,7 @@ using Monad;
 
 
 
-namespace DPMiner
+namespace DataVault
 {
     using Fkey = Tuple<DataField, IDataTable>;
     public  enum FieldProperty : byte

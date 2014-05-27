@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Monad;
 
-namespace DPMiner
+namespace DataVault
 {
     using Fkey = Tuple<DataField, IDataTable>;
     public interface IDataVaultControl

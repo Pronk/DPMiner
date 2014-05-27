@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DPMiner
+namespace DataVault
 {
     using Fields = Dictionary<string, List<string>>;
     using Bindings = Dictionary<string, List<Tuple<string,string,string>>>;

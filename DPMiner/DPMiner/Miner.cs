@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using Petri;
 
 namespace DPMiner
 {   

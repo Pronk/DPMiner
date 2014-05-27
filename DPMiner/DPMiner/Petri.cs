@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Monad;
+using DPMiner;
 
-namespace DPMiner
+namespace Petri
 {
     public interface IPetriNet
     {
         IPetriControl GetControls();
+        IVisualSet GetView();
     }
     public interface  IPetriControl
     {
@@ -62,7 +64,7 @@ namespace DPMiner
         {
             if (transitions == null)
                 throw new ArgumentNullException();
-            Tuple<int, int> size = Program.Util.MeasureSize(transitions);
+            Tuple<int, int> size = DPMiner.Program.Util.MeasureSize(transitions);
             if (size.Item2 != places || size.Item1 != tc)
                 return Maybe<PetriNet>.None();
             this.transitions = transitions;
@@ -123,7 +125,7 @@ namespace DPMiner
             }
 
         }
-        public partial class VisualPetri
+        public partial class VisualPetri:IVisualSet
         {
             PetriNet model;
             public VisualPetri(PetriNet model)

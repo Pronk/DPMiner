@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using Monad;
 
-namespace DPMiner
+namespace DataVault
 {
     using Fkey = Tuple<DataField, IDataTable>;
     using FkeyList = Tuple<List<string>, List<IDataTable>>;

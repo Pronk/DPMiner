@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Threading;
+using Petri;
 
 namespace DPMiner
 {

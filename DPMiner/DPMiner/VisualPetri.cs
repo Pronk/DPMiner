@@ -8,16 +8,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 
 
-namespace DPMiner
+namespace Petri
 {
-    public partial class VisualPetri
+    public interface IVisualSet
     {
-        List<Drawable> elements;
-        Drawable choosen;
-        protected void GetElements()
-        {
-            
-        }
+         void Draw(Graphics canvus);
+        void Select(Point point);
+         void Move(Point point);
     }
     public abstract class Drawable
     {

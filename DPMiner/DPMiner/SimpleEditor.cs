@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using Monad;
+using DPMiner;
+using Logic;
 
-namespace DPMiner
+namespace DataVault
 {
         using DataVaultSetup = Dictionary<FieldProperty, Dictionary<string, List<DataField>>>;
         public interface IDataVaultConstructor 
