@@ -1,6 +1,8 @@
-﻿using DataVault;
+﻿
+using DataVault;
 namespace DPMiner
 {
+    
     partial class Form1
     {
         /// <summary>
@@ -35,7 +37,7 @@ namespace DPMiner
             this.sateliteButton = new System.Windows.Forms.Button();
             this.catButton = new System.Windows.Forms.Button();
             this.buttonNext = new System.Windows.Forms.Button();
-            this.dataVault = new DPMiner.SimpleEditor();
+            this.dataVault = new SimpleEditor();
             this.candidates = new System.Windows.Forms.ListBox();
             this.dataVault.SuspendLayout();
             this.SuspendLayout();

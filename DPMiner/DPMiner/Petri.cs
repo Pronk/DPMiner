@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Monad;
 using DPMiner;
+using System.Drawing;
 
 namespace Petri
 {
     public interface IPetriNet
     {
         IPetriControl GetControls();
-        IVisualSet GetView();
+        IVisualSet GetView(Alphabeth alpha);
     }
     public interface  IPetriControl
     {
@@ -88,6 +89,10 @@ namespace Petri
         {
             return new PetriControl(this);
         }
+        public IVisualSet GetView(Alphabeth alpha)
+        {
+            return new VisualPetri(this, alpha);
+        }
         public class PetriControl : IPetriControl
         {
             PetriNet model;
@@ -128,9 +133,79 @@ namespace Petri
         public partial class VisualPetri:IVisualSet
         {
             PetriNet model;
-            public VisualPetri(PetriNet model)
+            Dictionary<string, Drawable> picture;
+            Drawable selected;
+            Alphabeth alpha;
+            public VisualPetri(PetriNet model, Alphabeth alpha)
             {
                 this.model = model;
+                if (!(model.places == 0 || model.tc == 0))
+                    PlaceNode(0, 10, 10);
+            }
+            public void Draw(Graphics g)
+            {
+
+                foreach (Drawable element in picture.Values)
+                    element.Draw(g);
+                
+            }
+            public void Select(Point point)
+            {
+                foreach (Drawable element in picture.Values)
+                    if (element.IsCaught(point))
+                    {
+                        selected = element;
+                        break;
+                    }
+            }
+            public void Move(Point point)
+            {
+                if (selected != null)
+                    selected.Location = point;
+            }
+            public void Update()
+            {
+                foreach (KeyValuePair<string, Drawable> pair in picture)
+                    if (pair.Key[0] == 'p')
+                        (pair.Value as Node).Markup = model.markup[Int32.Parse(pair.Key.Substring(1))];
+            }
+            protected Node PlaceNode(int n, int x, int y )
+            {
+                int scew = 0;
+                Random gen = new Random();
+                Node node = new Node(x, y, model.markup[n]);
+                picture.Add("p" + n.ToString(),node);
+                foreach(int t in Enumerable.Range(0,model.tc))
+                {
+                    int weight = model.transitions[n,t];
+                    if(weight != 0)
+                        if(!picture.Keys.Contains("t" + t.ToString()))
+                        {
+                            Transition tr = PlaceTr(t, x + Math.Sign(weight)*gen.Next(20,71),y + scew + gen.Next(0,71));
+                            picture.Add("a." + "p" + n.ToString() + "t" + t.ToString(), new Arrow(node, tr, weight));
+                            scew+=70;
+                        }
+                }
+                return node;
+            }
+            protected Transition PlaceTr(int t, int x, int y)
+            {
+                int scew = 0;
+                Random gen = new Random();
+                Transition tr = new Transition(x, y, alpha.Decode(t));
+                picture.Add("t" + t.ToString(), tr);
+                foreach (int n in Enumerable.Range(0, model.places))
+                {
+                    int weight = model.transitions[n, t];
+                    if (weight != 0)
+                        if (!picture.Keys.Contains("p" + n.ToString()))
+                        {
+                           Node node = PlaceNode(t, x - Math.Sign(weight) * gen.Next(20, 101), y + scew + gen.Next(0, 101));
+                            picture.Add("a."+"p" + n.ToString() + "t" + t.ToString(), new Arrow(node, tr, weight));
+                            scew += 100;
+                        }
+                }
+                return tr;
             }
         }
     }

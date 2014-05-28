@@ -50,6 +50,7 @@ namespace Petri
         {
             return (p.X - x <= 64) && (p.Y - y <= 64);
         }
+      
         public override void Draw(Graphics canvus)
         {
             Brush brush = new SolidBrush(Color.Coral);
