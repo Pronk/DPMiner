@@ -18,10 +18,11 @@ namespace Petri
     {
         bool TryFire(int id);
         bool Act();
-      int[] Firable();
+        int[] Firable();
+        void Reset();
 
     }
-    class PetriNet : IPetriNet, IEquatable<PetriNet>
+    partial class PetriNet : IPetriNet, IEquatable<PetriNet>
     {
 
         int places;
@@ -42,6 +43,26 @@ namespace Petri
                         return false;
             return true;
         }
+        /// <summary>
+        /// Каррируемая дельта-функция Кроннекера
+        /// </summary>
+        /// <param name="a">Индекс</param>
+        /// <returns>Функция Кроннекера</returns>
+        private Func<int,int> Delta(int a)
+        {
+            return b =>
+            {
+                if (a == b)
+                    return 1;
+                return 0;
+            };
+                
+        }
+        private void Reset()
+        {
+            Func<int,int> d = Delta(0);
+            markup = markup.Select((x, n) => d(n)).ToArray();
+        }
         public PetriNet(int places, int tc)
         {
             if (places < 0 || tc < 0)
@@ -50,6 +71,7 @@ namespace Petri
             this.tc = tc;
             markup = new int[places];
             transitions = new int[tc, places];
+            Reset();
         }
 
         public Maybe<PetriNet> setMarkup(int[] markup)
@@ -93,7 +115,7 @@ namespace Petri
         {
             return new VisualPetri(this, alpha);
         }
-        public class PetriControl : IPetriControl
+         class PetriControl : IPetriControl
         {
             PetriNet model;
             public PetriControl(PetriNet net)
@@ -118,6 +140,10 @@ namespace Petri
                 return false;
 
             }
+            public void Reset()
+            {
+                model.Reset();
+            }
             public bool Act()
             {
                 Random gen = new Random();
@@ -128,13 +154,17 @@ namespace Petri
                 return true;
 
             }
+            public void update()
+            {
 
+            }
         }
-        public partial class VisualPetri:IVisualSet
+        class VisualPetri:IVisualSet
         {
             PetriNet model;
             Dictionary<string, Drawable> picture;
             Drawable selected;
+            Int32 code = -1;
             Alphabeth alpha;
             public VisualPetri(PetriNet model, Alphabeth alpha)
             {
@@ -149,14 +179,22 @@ namespace Petri
                     element.Draw(g);
                 
             }
-            public void Select(Point point)
+            public bool Select(Point point)
             {
-                foreach (Drawable element in picture.Values)
-                    if (element.IsCaught(point))
-                    {
-                        selected = element;
-                        break;
-                    }
+               
+                KeyValuePair<string,Drawable> pair = picture.Where(el => el.Value.IsCaught(point)).FirstOrDefault();
+                if (pair.Equals(new  KeyValuePair<string,Drawable>()))
+                    return false;
+                selected = pair.Value;
+                if (selected is Transition)
+                    code = Int32.Parse(pair.Key.Substring(1));
+                else 
+                    code = -1;
+                return true;
+            }
+            public Int32 Code()
+            {
+                return code;
             }
             public void Move(Point point)
             {
@@ -168,6 +206,7 @@ namespace Petri
                 foreach (KeyValuePair<string, Drawable> pair in picture)
                     if (pair.Key[0] == 'p')
                         (pair.Value as Node).Markup = model.markup[Int32.Parse(pair.Key.Substring(1))];
+                
             }
             protected Node PlaceNode(int n, int x, int y )
             {

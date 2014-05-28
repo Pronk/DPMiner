@@ -13,8 +13,10 @@ namespace Petri
     public interface IVisualSet
     {
          void Draw(Graphics canvus);
-        void Select(Point point);
+         bool Select(Point point);
          void Move(Point point);
+         void Update();
+         Int32 Code();
     }
     public abstract class Drawable
     {
