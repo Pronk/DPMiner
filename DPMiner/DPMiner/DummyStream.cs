@@ -25,7 +25,18 @@ namespace DPMiner
 
         public Dictionary<string,string> ReadTuple()
         {
-
+            string input = reader.ReadLine();
+            if(input == null)
+                return null;
+            Dictionary<string,string> output = new Dictionary<string,string>();
+            string[] tuple = input.Split(new char[] {';'});
+            tuple.Where
+                (field => select.Contains(field.Split(new char[]{'='})[0]))
+                .Select<string, object>(field =>
+                {
+                    output.Add(field.Split(new char[] { '=' })[0], field.Split(new char[] { '=' })[1]);
+                    return null;});
+            return output;
         }
 
     }
