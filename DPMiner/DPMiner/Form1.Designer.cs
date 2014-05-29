@@ -37,7 +37,7 @@ namespace DPMiner
             this.sateliteButton = new System.Windows.Forms.Button();
             this.catButton = new System.Windows.Forms.Button();
             this.buttonNext = new System.Windows.Forms.Button();
-            this.dataVault = new SimpleEditor();
+            this.dataVault = new DataVault.SimpleEditor();
             this.candidates = new System.Windows.Forms.ListBox();
             this.dataVault.SuspendLayout();
             this.SuspendLayout();
@@ -131,6 +131,7 @@ namespace DPMiner
             this.Controls.Add(this.hubButton);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.dataVault);
+            this.DoubleBuffered = true;
             this.Name = "Form1";
             this.Text = "Form1";
             this.dataVault.ResumeLayout(false);

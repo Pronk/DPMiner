@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alphabeth.cs" />
+    <Compile Include="DummyStream.cs" />
     <Compile Include="DVSetup.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="DataVault.cs" />

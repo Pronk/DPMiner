@@ -86,7 +86,13 @@ namespace DPMiner
         }
         public IMiningState Next()
         {
-            return this;
+            if (result == null)
+                throw new Exception();
+            PetriView next = new PetriView(result, lb.Alphabeth);
+            next.Location = Location;
+            next.Size = Size;
+            return next;
+
         }
     }
 }
