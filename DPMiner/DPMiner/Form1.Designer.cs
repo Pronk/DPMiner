@@ -3,7 +3,7 @@ using DataVault;
 namespace DPMiner
 {
     
-    partial class Form1
+    partial class FormMain
     {
         /// <summary>
         /// Требуется переменная конструктора.
@@ -37,8 +37,12 @@ namespace DPMiner
             this.sateliteButton = new System.Windows.Forms.Button();
             this.catButton = new System.Windows.Forms.Button();
             this.buttonNext = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dataVault = new DataVault.SimpleEditor();
             this.candidates = new System.Windows.Forms.ListBox();
+            this.menuStrip1.SuspendLayout();
             this.dataVault.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -99,6 +103,31 @@ namespace DPMiner
             this.buttonNext.UseVisualStyleBackColor = true;
             this.buttonNext.Click += new System.EventHandler(this.buttonNext_Click);
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(632, 24);
+            this.menuStrip1.TabIndex = 7;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectionToolStripMenuItem});
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(73, 20);
+            this.toolStripMenuItem1.Text = "Connection";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
+            // connectionToolStripMenuItem
+            // 
+            this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.connectionToolStripMenuItem.Text = "Connection";
+            // 
             // dataVault
             // 
             this.dataVault.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -131,11 +160,16 @@ namespace DPMiner
             this.Controls.Add(this.hubButton);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.dataVault);
+            this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Form1";
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.dataVault.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -149,6 +183,9 @@ namespace DPMiner
         private System.Windows.Forms.Button catButton;
         private System.Windows.Forms.Button buttonNext;
         private System.Windows.Forms.ListBox candidates;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
 
        
 

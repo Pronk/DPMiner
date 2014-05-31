@@ -11,11 +11,11 @@ using System.Windows.Forms;
 namespace DPMiner
 {
   
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
         IMiningState current ;
         Control[] outerControl;
-        public Form1()
+        public FormMain()
        {
            InitializeComponent();
             hubButton.Click += dataVault.NewHub;
@@ -28,6 +28,7 @@ namespace DPMiner
             linkButton,
             sateliteButton,
             catButton};
+            dataVault.NewHub(dataVault,new EventArgs());
        }
 
         private void exitButton_Click(object sender, EventArgs e)
@@ -53,6 +54,13 @@ namespace DPMiner
         public void Next()
         {
             buttonNext_Click(this, new EventArgs());
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            
+            Form ConSetup = new FormForConnection();
+            ConSetup.Show();
         }
        
 

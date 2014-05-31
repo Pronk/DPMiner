@@ -81,7 +81,7 @@ namespace DPMiner
             ProcessMiner miner = new AlphaMiner(lb.Alphabeth.Size);
             messageBoard.Text = "Process Mining";
             result = miner.Mine(log);
-            Form1 parent = Parent as Form1;
+            FormMain parent = Parent as FormMain;
             parent.Next();
         }
         public IMiningState Next()

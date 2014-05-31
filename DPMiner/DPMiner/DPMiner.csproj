@@ -57,6 +57,12 @@
     <Compile Include="DataVaultView.cs" />
     <Compile Include="DVControl.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FormForConnection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormForConnection.Designer.cs">
+      <DependentUpon>FormForConnection.cs</DependentUpon>
+    </Compile>
     <Compile Include="Global.cs" />
     <Compile Include="IDataStream.cs" />
     <Compile Include="IMiningState.cs" />
@@ -95,6 +101,9 @@
     </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormForConnection.resx">
+      <DependentUpon>FormForConnection.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

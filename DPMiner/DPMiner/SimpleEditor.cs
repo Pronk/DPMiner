@@ -64,6 +64,7 @@ namespace DataVault
                 model = new DataVault("test");
                 tables = model.View(this);
                 control = model.Control();
+                
 
             }
             public void Add(Control control)

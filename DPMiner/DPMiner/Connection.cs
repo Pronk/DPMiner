@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataVault;
 
 namespace DPMiner
 {
     internal  static class Connection
     {
+        static bool offline;
         static string source="";
         static string db = "";
         static string username = "";
@@ -35,6 +37,17 @@ namespace DPMiner
         public static string Connect()
         {
             return "Database="+db+";Data Source="+source+";User Id="+username+";Password=" +pass;
+        }
+        public static bool Offline
+        {
+            get { return offline; }
+            set { offline = value; }
+        }
+        public static IDataStream GetStream(DVSetup setup)
+        {
+            if (offline)
+                return new DummyStream("Test.txt", setup);
+            return new MySqlStream(setup);
         }
     }
     }
