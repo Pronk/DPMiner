@@ -71,6 +71,12 @@
     <Compile Include="LogicView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MESolutionSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MESolutionSelector.Designer.cs">
+      <DependentUpon>MESolutionSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="MYSQLStream.cs" />
     <Compile Include="PetriView.cs">
       <SubType>Component</SubType>
@@ -104,6 +110,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormForConnection.resx">
       <DependentUpon>FormForConnection.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MESolutionSelector.resx">
+      <DependentUpon>MESolutionSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

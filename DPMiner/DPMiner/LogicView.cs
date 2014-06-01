@@ -74,7 +74,7 @@ namespace Logic
         public IMiningState Next()
         {
             Global.Logic = control.Logic().ProcessEvents;
-            WaitScreen screen = new WaitScreen(new LogBuilder(new MySqlStream(Global.Setup), Global.Setup, control.Logic().ProcessEvents, MultyEventSolution.drop));
+            WaitScreen screen = new WaitScreen( new LogBuilder(Connection.GetStream(Global.Setup), Global.Setup, control.Logic().ProcessEvents, MultyEventSolution.drop));
             screen.Size = Size;
             screen.Location = Location;
             return screen;

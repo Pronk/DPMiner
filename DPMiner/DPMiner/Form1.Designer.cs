@@ -40,6 +40,7 @@ namespace DPMiner
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.multyEventSolutionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dataVault = new DataVault.SimpleEditor();
             this.candidates = new System.Windows.Forms.ListBox();
             this.menuStrip1.SuspendLayout();
@@ -116,17 +117,25 @@ namespace DPMiner
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.connectionToolStripMenuItem});
+            this.connectionToolStripMenuItem,
+            this.multyEventSolutionToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(73, 20);
-            this.toolStripMenuItem1.Text = "Connection";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(56, 20);
+            this.toolStripMenuItem1.Text = "Options";
             // 
             // connectionToolStripMenuItem
             // 
             this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.connectionToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.connectionToolStripMenuItem.Text = "Connection";
+            this.connectionToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
+            // multyEventSolutionToolStripMenuItem
+            // 
+            this.multyEventSolutionToolStripMenuItem.Name = "multyEventSolutionToolStripMenuItem";
+            this.multyEventSolutionToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.multyEventSolutionToolStripMenuItem.Text = "Multy event solution";
+            this.multyEventSolutionToolStripMenuItem.Click += new System.EventHandler(this.multyEventSolutionToolStripMenuItem_Click);
             // 
             // dataVault
             // 
@@ -148,7 +157,7 @@ namespace DPMiner
             this.candidates.Size = new System.Drawing.Size(89, 238);
             this.candidates.TabIndex = 2;
             // 
-            // Form1
+            // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -163,7 +172,7 @@ namespace DPMiner
             this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.Name = "FormMain";
             this.Text = "Form1";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -186,6 +195,7 @@ namespace DPMiner
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem multyEventSolutionToolStripMenuItem;
 
        
 

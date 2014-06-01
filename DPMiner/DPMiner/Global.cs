@@ -9,12 +9,13 @@ using Logic;
 
 namespace DPMiner
 {
-    public static class Global
+    static class Global
     {
         static DVSetup setup;
         static List<EventLogic> logic;
         static IPetriNet model;
         static IDataVault dv;
+        static MultyEventSolution solution;
         public static DVSetup Setup
         {
             get { return setup; }
@@ -34,6 +35,11 @@ namespace DPMiner
         {
             get { return dv; }
             set { dv = value; }
+        }
+        public static MultyEventSolution Solution
+        {
+            get { return solution; }
+            set { solution = value; }
         }
     }
 }

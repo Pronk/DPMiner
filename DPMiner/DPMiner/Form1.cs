@@ -58,9 +58,14 @@ namespace DPMiner
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            
             Form ConSetup = new FormForConnection();
             ConSetup.Show();
+        }
+
+        private void multyEventSolutionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form selector = new MESolutionSelector();
+            selector.Show();
         }
        
 

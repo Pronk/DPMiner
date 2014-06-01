@@ -85,9 +85,11 @@ namespace DPMiner
             parent.Next();
         }
         public IMiningState Next()
-        {
+        { 
             if (result == null)
                 throw new Exception();
+            Global.Model = result;
+
             PetriView next = new PetriView(result, lb.Alphabeth);
             next.Location = Location;
             next.Size = Size;
