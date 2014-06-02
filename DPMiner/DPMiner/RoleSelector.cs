@@ -8,7 +8,7 @@ using System.Drawing;
 
 namespace DataVault
 {
-    class RoleSelector
+    public class RoleSelector
     {
         HashSet<FieldProperty> selected = new HashSet<FieldProperty>();
         public HashSet<FieldProperty> Selected { get { return selected; } }

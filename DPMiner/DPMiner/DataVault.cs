@@ -75,6 +75,7 @@ namespace DataVault
         uint id;
         string name;
         static uint idCount = 0;
+        protected DataField timeStamp;
         public abstract DataField[] Content();
         public abstract TableType Type();
         public IView Preview(IDataVaultConstructor constructor)
@@ -94,6 +95,11 @@ namespace DataVault
         public string GetName()
         {
             return name;
+        }
+        public DataField TimeStamp
+        {
+            get { return timeStamp; }
+            set { timeStamp = value; }
         }
         public string Name
         {
@@ -129,7 +135,7 @@ namespace DataVault
         public override DataField[] Content()
         {
   
-            return new DataField[] {iD};
+            return new DataField[] {iD,timeStamp};
         }
         public Hub(string name, string iD)
             : base(name)
@@ -185,6 +191,7 @@ namespace DataVault
             content.Add(surID);
             foreach (DataField hub in joint.Select<Fkey,DataField>(t => t.Item1))
                 content.Add(hub);
+            content.Add(timeStamp);
             return content.ToArray();
         }
         public Link(string name, List<Hub> joint,List<string> fKeys, string surID)
@@ -230,6 +237,7 @@ namespace DataVault
         {
             List<DataField> content = new List<DataField>();
             content.Add(key);
+            content.Add(timeStamp);
             foreach (DataField category in categories)
                 content.Add(category);
             return content.ToArray();
@@ -286,6 +294,7 @@ namespace DataVault
             List<DataField> content = new List<DataField>();
             content.Add(key);
             content.Add(link.Item1);
+            content.Add(timeStamp);
             foreach (DataField measure in measures)
                 content.Add(measure);
             foreach (Fkey category in categories)

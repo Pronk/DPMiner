@@ -56,7 +56,8 @@ namespace Petri
         public override void Draw(Graphics canvus)
         {
             Brush brush = new SolidBrush(Color.Coral);
-            canvus.FillEllipse(brush, x, y, 64, 64);
+            //canvus.FillEllipse(brush, x, y, 64, 64);
+            canvus.DrawEllipse(new Pen(Color.Black, 5), x, y, 64, 64);
             if (markup < 5)
             {
 
@@ -162,7 +163,11 @@ namespace Petri
                 canvus.DrawLine(new Pen(Color.Black, 4), new PointF(begin.X - 15, begin.Y - 5), new PointF(begin.X - 2, begin.Y));
                 canvus.DrawLine(new Pen(Color.Black, 4), new PointF(begin.X - 12, begin.Y - 3), new PointF(begin.X - 12, begin.Y + 3));
                 if (weight > 1)
-                    canvus.DrawString(weight.ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Blue), new PointF(end.X + (float)0.1 * (1 / Coef()) * Location.X, end.Y + (float)0.1 * (1 / Coef()) * Location.Y));
+                {
+                    
+                    canvus.FillRectangle(new SolidBrush(Color.White), new Rectangle((new Point((int)Math.Ceiling(end.X + (float)0.1 * (1 / Coef()) * Location.X), (int)Math.Ceiling(end.Y + (float)0.1 * (1 / Coef()) * Location.Y))), new Size(20, 20)));
+                    canvus.DrawString(weight.ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Black), new PointF(end.X + (float)0.1 * (1 / Coef()) * Location.X, end.Y + (float)0.1 * (1 / Coef()) * Location.Y));
+                }
                 return;
             }
             if (weight > 0)
@@ -171,7 +176,10 @@ namespace Petri
                 canvus.DrawLine(new Pen(Color.Black, 4), new PointF(begin.X + 15, begin.Y - 5), new PointF(begin.X + 2, begin.Y));
                 canvus.DrawLine(new Pen(Color.Black, 4), new PointF(begin.X + 12, begin.Y - 3), new PointF(begin.X + 12, begin.Y + 3));
                 if (weight > 1)
-                    canvus.DrawString(weight.ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Blue), new PointF(end.X + (float)0.1 * (1 / Coef()) * Location.X, end.Y + (float)0.1 * (1 / Coef()) * Location.Y));
+                {
+                    canvus.FillRectangle(new SolidBrush(Color.White), new Rectangle((new Point((int)Math.Ceiling(end.X + (float)0.1 * (1 / Coef()) * Location.X), (int)Math.Ceiling(end.Y + (float)0.1 * (1 / Coef()) * Location.Y))), new Size(20, 20)));
+                    canvus.DrawString(weight.ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Black), new PointF(end.X + (float)0.1 * (1 / Coef()) * Location.X, end.Y + (float)0.1 * (1 / Coef()) * Location.Y));
+                }
                 return;
             }
             if (toNode)
@@ -180,14 +188,21 @@ namespace Petri
                 canvus.DrawLine(new Pen(Color.Black, 4), new PointF(end.X + 15, end.Y - 5), new PointF(end.X + 2, end.Y));
                 canvus.DrawLine(new Pen(Color.Black, 4), new PointF(end.X + 12, end.Y - 3), new PointF(end.X + 12, end.Y + 3));
                 if (weight < -1)
-                    canvus.DrawString((-weight).ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Blue), new PointF(begin.X - (float)0.1 * (1 / Coef()) * Location.X, begin.Y - (float)0.1 * (1 / Coef()) * Location.Y));
+                {
+                    canvus.FillRectangle(new SolidBrush(Color.White), new Rectangle((new Point((int)Math.Ceiling(begin.X - (float)0.1 * (1 / Coef()) * Location.X), (int)Math.Ceiling(begin.Y - (float)0.1 * (1 / Coef()) * Location.Y))), new Size(20, 20)));
+                    canvus.DrawString((-weight).ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Black), new PointF(begin.X - (float)0.1 * (1 / Coef()) * Location.X, begin.Y - (float)0.1 * (1 / Coef()) * Location.Y));
+                }
                 return;
             }
             canvus.DrawLine(new Pen(Color.Black, 4), new PointF(end.X - 15, end.Y + 5), new PointF(end.X - 2, end.Y));
             canvus.DrawLine(new Pen(Color.Black, 4), new PointF(end.X - 15, end.Y - 5), new PointF(end.X - 2, end.Y));
             canvus.DrawLine(new Pen(Color.Black, 4), new PointF(end.X - 12, end.Y - 3), new PointF(end.X - 12, end.Y + 3));
             if (weight < -1)
-                canvus.DrawString((-weight).ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Blue), new PointF(begin.X - (float)0.1 * (1 / Coef()) * Location.X, begin.Y - (float)0.1 * (1 / Coef()) * Location.Y));
+            {
+                canvus.FillRectangle(new SolidBrush(Color.White), new Rectangle((new Point((int)Math.Ceiling(begin.X - (float)0.1 * (1 / Coef()) * Location.X), (int)Math.Ceiling(begin.Y - (float)0.1 * (1 / Coef()) * Location.Y))), new Size(20, 20)));
+                canvus.DrawString((-weight).ToString(), new Font("Impact", 15, FontStyle.Italic), new SolidBrush(Color.Black), new PointF(begin.X - (float)0.1 * (1 / Coef()) * Location.X, begin.Y - (float)0.1 * (1 / Coef()) * Location.Y));
+
+            }
             return;
         }
         protected float Distance(Point a, Point b)

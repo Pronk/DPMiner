@@ -15,6 +15,8 @@ namespace DPMiner
         public FormForConnection()
         {
             InitializeComponent();
+            if (Connection.Offline)
+                checkOffline.Checked = true;
         }
 
         private void buttonExit_Click(object sender, EventArgs e)

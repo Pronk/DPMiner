@@ -32,6 +32,7 @@ namespace DataVault
             panel.Name = "panelVault";
             panel.Size = new System.Drawing.Size(158, 331);
             panel.TabIndex = 0;
+            panel.BackColor = Color.WhiteSmoke;
             this.parent.Add(panel);
 
             
@@ -88,8 +89,10 @@ namespace DataVault
             Label tableLabel = new Label();
             tableLabel.Text = self.ToString();
             tableLabel.Name = self.ToString();
-            tableLabel.Left = 30;
-            tableLabel.Top = 10;
+            //tableLabel.Left = 30;
+            //tableLabel.Top = 10;
+            tableLabel.Dock = DockStyle.Top;
+            tableLabel.TextAlign = ContentAlignment.MiddleCenter;
             panel.Controls.Add(tableLabel);
             Renew();
 
@@ -97,15 +100,20 @@ namespace DataVault
         public void Renew()
         {
 
-            int top = 30;
+            int top = 35;
             foreach ( DataField field in self.Content())
             {
 
                 Label tableLabel = new Label();
-                tableLabel.Text = field.ToString();
+                string text = field.ToString() + ":";
+                foreach (FieldProperty role in field.Roles)
+                    text += "   " + Enum.GetName(role.GetType(), role);
+                tableLabel.Text = text;
                 tableLabel.Name = field.ToString();
                 tableLabel.Left = 20;
                 tableLabel.Top = top;
+                tableLabel.Height = 30;
+                tableLabel.Width = panel.Width - 20;
                 panel.Controls.Add(tableLabel);
                 top += 30;
 
@@ -143,9 +151,11 @@ namespace DataVault
             Label label = new Label();
             label.Text = Program.Util.Typename(trueType) + " " + self.ToString();
             label.Name = ToString();
-            label.Left = 10;
-            label.Top = 10;
-            label.Size = new System.Drawing.Size(160, 15);
+            //label.Left = 10;
+            //label.Top = 10;
+            //label.Size = new System.Drawing.Size(160, 15);
+            label.TextAlign = ContentAlignment.MiddleCenter;
+            label.Dock = DockStyle.Top;
             panel.Controls.Add(label);
             parent.RemoveByKey("panelEditor");
             this.parent.Add(panel);
@@ -165,9 +175,12 @@ namespace DataVault
             Label label = new Label();
             label.Text = type.ToString() + ". Enter the name.";
             label.Name = ToString();
-            label.Left = 10;
-            label.Top = 10;
-            label.Size = new System.Drawing.Size(160, 15);
+            label.TextAlign = ContentAlignment.MiddleCenter;
+            //label.Left = 10;
+            //label.Top = 10;
+            //label.Size = new System.Drawing.Size(160, 15);
+            //label.Dock = DockStyle.Top;
+            label.Dock = DockStyle.Top;
             panel.Controls.Add(label);
             parent.RemoveByKey("panelEditor");
             this.parent.Add(panel);

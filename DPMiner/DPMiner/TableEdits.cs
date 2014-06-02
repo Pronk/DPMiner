@@ -55,6 +55,8 @@ namespace DataVault
     {
 
         Panel fieldsPanel = new Panel();
+        protected Panel controlsPanel = null;
+        int n = 0;
         public void Clear()
         {
             fieldsPanel.Controls.Clear();
@@ -100,6 +102,7 @@ namespace DataVault
             panel.BorderStyle = BorderStyle.None;
             panel.Height = 30;
             Controls.Add(panel);
+            n = 0;
             return panel;
         }
         public void Renew()
@@ -159,18 +162,115 @@ namespace DataVault
         {
            
         }
+        public Panel AddField(string text, string name, out TextBox field)
+        {
+            Label label = new Label();
+ 
+            label.Text = name;
+            label.Name = "fieldLabel";
+            label.Location = new System.Drawing.Point(1, 1);
+            label.Size = new Size(80,20);
+            field = new TextBox();
+            field.Text = text;
+            field.Name = "bKeyBox";
+            field.Location = new System.Drawing.Point(80, 1);
+            field.Size = new System.Drawing.Size(100, 20);
+            Panel panel = FieldPanel();
+            panel.Controls.Add(field);
+            panel.Controls.Add(label);
+            return panel;
+        }
+        protected Panel AddField(string text, string name, out TextBox field, HashSet<FieldProperty> locked, HashSet<FieldProperty> blocked, out RoleSelector selector)
+        {
+            Panel panel = AddField(text, name, out field);
+            selector = new RoleSelector(locked, blocked, panel);
+            return panel;
+        }
+        protected Panel AddField(string text, string name, out TextBox field, HashSet<FieldProperty> locked, HashSet<FieldProperty> blocked,HashSet<FieldProperty> choosen, out RoleSelector selector)
+        {
+            Panel panel = AddField(text, name, out field);
+            selector = new RoleSelector(locked, blocked, choosen, panel);
+            return panel;
+        }
+        protected void AddButton(string name, EventHandler action)
+        {
+            if (controlsPanel == null)
+                controlsPanel = ControlPanel();
+            Button button = new Button();
+            button.Name = "Button";
+            button.Text = name;
+            button.Click += action;
+            button.Location = new System.Drawing.Point(n*90, 1);
+            button.Size = new System.Drawing.Size(90, 20);
+            controlsPanel.Controls.Add(button);
+            n++;
+        }
+        protected void AddButton(string name, IEnumerable<EventHandler> actions)
+        {
+            if (controlsPanel == null)
+                controlsPanel = ControlPanel();
+            Button button = new Button();
+            button.Name = "Button";
+            button.Text = name;
+            foreach(EventHandler action in actions)
+                button.Click += action;
+            button.Location = new System.Drawing.Point(n * 90, 1);
+            button.Size = new System.Drawing.Size(90, 20);
+            controlsPanel.Controls.Add(button);
+            n++;
+        }
+        protected void AddFkey(string text, string name, TableType type , out FKEditor fk, HashSet<FieldProperty> locked, HashSet<FieldProperty> blocked, out RoleSelector selector)
+        {
+            Panel panel = FieldPanel(); 
+            Label label = new Label();
+            label.Text = name;
+            label.Name = "nameLabel";
+            label.Location = new System.Drawing.Point(1, 1);
+            label.Size = new Size(80, 20);
+            fk = new FKEditor();
+            fk.Text = text;
+            fk.Name = "hKeyBox";
+            fk.Location = new System.Drawing.Point(80, 1);
+            fk.Enter += parent.InvokeSelector(type, fk);
+            fk.Size = new System.Drawing.Size(100, 20);
+            selector =new RoleSelector(locked,blocked,panel);
+            panel.Controls.Add(label);
+            panel.Controls.Add(fk);
+        }
+        protected void AddFkey(string text, string name, IDataTable table, TableType type, out FKEditor fk, HashSet<FieldProperty> locked, HashSet<FieldProperty> blocked, HashSet<FieldProperty> choosen,  out RoleSelector selector)
+        {
+            Panel panel = FieldPanel();
+            Label label = new Label();
+            label.Text = name;
+            label.Name = "nameLabel";
+            label.Location = new System.Drawing.Point(1, 1);
+            label.Size = new Size(80, 20);
+            fk = new FKEditor();
+            fk.Text = text;
+            fk.Name = "hKeyBox";
+            fk.Location = new System.Drawing.Point(80, 1);
+            fk.Enter += parent.InvokeSelector(type, fk);
+            fk.Size = new System.Drawing.Size(100, 20);
+            fk.setTable(table);
+            selector = new RoleSelector(locked, blocked, choosen, panel);
+            panel.Controls.Add(label);
+            panel.Controls.Add(fk);
+        }
     }
     public class HubControls : TableControls
     {
         TextBox name;
         TextBox bis;
+        TextBox time;
         RoleSelector keyRoles;
+        RoleSelector timeRoles;
         public HubControls(IDataVaultConstructor parent) : base(parent) { }
         public HubControls(IDataTable table, IDataVaultConstructor parent) : base(table, parent) { }
         public override void Edits(IDataTable table, IDataVaultConstructor parent)
         {
             Controls.Clear();
             Clear();
+            controlsPanel = null;
             Hub hub = table as Hub;
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
@@ -180,53 +280,17 @@ namespace DataVault
             this.Name = "HubControls";
             this.Size = new System.Drawing.Size(420, 175);
             this.TabIndex = 0;
-            Label label = new Label();
-            DataField[] fields = hub.Content();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            name = new TextBox();
-            name.Text = hub.Name;
-            name.Name = "bKeyBox";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            Panel panel = FieldPanel();
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            label = new Label();
-            label.Text = "Business Key";
-            label.Name = "bKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            bis = new TextBox();
-            bis.Text = fields[0].ToString();
-            bis.Name = "bKeyBox";
-            bis.Location = new System.Drawing.Point(80, 1);
-            bis.Size = new System.Drawing.Size(100, 20);
-            panel = FieldPanel();
-            keyRoles = new RoleSelector(new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.key }), new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.fkey }), hub.ID.Roles, panel);
-            panel.Controls.Add(bis);
-            panel.Controls.Add(label);
-            panel = ControlPanel();
-            Button button = new Button();
-            button.Name = "UpdateButton";
-            button.Text = "Update";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            button.Click += UpdateHub;
-            panel.Controls.Add(button);
-            button = new Button();
-            button.Name = "deleteButton";
-            button.Text = "Delete";
-            button.Click += parent.Delete;
-            button.Click += OnDelete;
-            button.Location = new System.Drawing.Point(80, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            panel.Controls.Add(button);
+            AddField(hub.Name, "Name:", out name);
+            AddField(hub.ID.ToString(), "Key:", out bis, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, hub.ID.Roles, out keyRoles);
+            AddField(hub.TimeStamp.ToString(), "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, hub.TimeStamp.Roles, out timeRoles);
+            AddButton("Update", UpdateHub);
+            AddButton("Delete", new EventHandler[]{parent.Delete,OnDelete});
 
 
         }
         public override void Edits(IDataVaultConstructor parent)
         {
+            controlsPanel = null;
             Controls.Clear();
             Clear();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -237,39 +301,10 @@ namespace DataVault
             this.Name = "HubControls";
             this.Size = new System.Drawing.Size(420, 175);
             this.TabIndex = 0;
-            Label label = new Label();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            name = new TextBox();
-            name.Text = "";
-            name.Name = "bKeyBox";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            Panel panel= FieldPanel();
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            label = new Label();
-            label.Text = "Business Key";
-            label.Name = "bKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            bis = new TextBox();
-            bis.Text = "";
-            bis.Name = "bKeyBox";
-            bis.Location = new System.Drawing.Point(80, 1);
-            bis.Size = new System.Drawing.Size(100, 20);
-            panel = FieldPanel();
-            keyRoles = new RoleSelector(new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.key }), new HashSet<FieldProperty>(new FieldProperty[] { FieldProperty.fkey }), panel);
-            panel.Controls.Add(bis);
-            panel.Controls.Add(label);
-            panel = ControlPanel();
-            Button button = new Button();
-            button.Name = "AddButton";
-            button.Text = "Add";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            button.Click += AddHub;
-            panel.Controls.Add(button);
+            AddField("", "Name:", out name);
+            AddField("", "Key:", out bis, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, out keyRoles);
+            AddField("", "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, out timeRoles);
+            AddButton("Create", AddHub);
         }
         private void UpdateHub(object sender, EventArgs args)
         {
@@ -277,11 +312,13 @@ namespace DataVault
             {
                 string newName = "";
                 string newBKey = "";
+                string newTime = "";
                 TrueText(name).Do(s => newName = s, () => { throw new ArgumentException("Hub must have a name!"); });
-                TrueText(bis).Do(s => newBKey = s, () => { throw new ArgumentException("Hub must have a business keu!"); });
+                TrueText(bis).Do(s => newBKey = s, () => { throw new ArgumentException("Hub must have a business key!"); });
+                TrueText(time).Do(s => newTime = s, () => { throw new ArgumentException("Hub must have a Time stamp!"); });
                 Hub hub = Table.Load() as Hub;
-                hub.ID = new DataField(newBKey);
-                hub.ID = hub.ID <= keyRoles.Selected;
+                hub.ID = new DataField(newBKey) <= keyRoles.Selected;
+                hub.TimeStamp = new DataField(newTime) <= timeRoles.Selected;
                 hub.Name = newName;
                 parent.Refresh();
                 parent.UpdateEditor();
@@ -297,9 +334,12 @@ namespace DataVault
             {
                 string newName = "";
                 string newBKey = "";
+                string newTime = "";
                 TrueText(name).Do(s => newName = s, () => { throw new ArgumentException("Hub must have a name!"); });
                 TrueText(bis).Do(s => newBKey = s, () => { throw new ArgumentException("Hub must have a business key!"); });
+                TrueText(time).Do(s => newTime = s, () => { throw new ArgumentException("Hub must have a Time stamp!"); });
                 Hub hub = new Hub(newName, newBKey);
+                hub.TimeStamp = new DataField(newTime) <= timeRoles.Selected;
                 hub.ID = hub.ID <= keyRoles.Selected;
                 parent.AddTable(hub);
                 Table = hub;
@@ -313,7 +353,9 @@ namespace DataVault
         int n = 1;
         TextBox sur;
         TextBox name;
+        TextBox time;
         RoleSelector keyRoles;
+        RoleSelector timeRoles;
         List<FKEditor> hubKeys = new List<FKEditor>();
         List<RoleSelector> fKeyRoles = new List<RoleSelector>();
         public LinkControls(IDataVaultConstructor parent) : base(parent) { }
@@ -325,9 +367,9 @@ namespace DataVault
             Controls.Clear();
             hubKeys.Clear();
             fKeyRoles.Clear();
+            controlsPanel = null;
             Link link = table as Link;
             DataField[] fields = link.Content();
-            List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
             this.AutoScroll = true;
@@ -336,87 +378,23 @@ namespace DataVault
             this.Name = "HubControls";
             this.Size = new Size(420, 175);
             this.TabIndex = 0;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(60, 20);
-            name = new TextBox();
-            name.Text = link.Name;
-            name.Name = "bKeyBox";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            sur = new TextBox();
-            label = new Label();
-            label.Text = "Surrogate Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            sur = new TextBox();
-            sur.Name = "sKeyBox";
-            sur.Text = fields[0].ToString();
-            sur.Location = new System.Drawing.Point(80, 1);
-            sur.Size = new System.Drawing.Size(100, 20);
-            keyRoles = new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.key }, 
-                new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.time, FieldProperty.pVal }, 
-                fields[0].Roles, panel);
-            panel.Controls.Add(sur);
-            panel.Controls.Add(label);
-            foreach (int k in Enumerable.Range(0, link.Joint.Count))
+            AddField(link.Name, "Name:", out name);
+            AddField(link.Key.ToString(), "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, link.Key.Roles, out keyRoles);
+            AddField(link.TimeStamp.ToString(), "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, link.TimeStamp.Roles, out timeRoles);
+            foreach (Fkey fkey in link.Joint)
             {
-                panel = FieldPanel();
-                label = new Label();
-                label.Text = "Hub" + (k+1).ToString();
-                label.Name = "nameLabel";
-                label.Location = new System.Drawing.Point(1, 1);
-                label.Size = new System.Drawing.Size(60, 20);
-                FKEditor hub = new FKEditor();
-                hub.setTable(link.Joint[k].Item2);
-                hub.Text = link.Joint[k].Item1.ToString();
-                hub.Name = "bKeyBox";
-                hub.Enter+=parent.InvokeSelector(TableType.Hub,hub);
-                hub.Location = new System.Drawing.Point(80, 1);
-                hub.Size = new System.Drawing.Size(100, 30);
-                panel.Controls.Add(label);
-                panel.Controls.Add(hub);
-                hubKeys.Add(hub);
-                fKeyRoles.Add(
-                    new RoleSelector(
-                        new HashSet<FieldProperty> { FieldProperty.fkey },
-                        new HashSet<FieldProperty> { FieldProperty.key }, 
-                        link.Joint[k].Item1.Roles, panel)
-                        );
-                n = k;
+                FKEditor fk;
+                RoleSelector fkRole;
+                AddFkey(fkey.Item1.ToString(), "Hub " + n.ToString() + ":", fkey.Item2, TableType.Hub, out fk,
+                    new HashSet<FieldProperty> { FieldProperty.fkey }, new HashSet<FieldProperty> { FieldProperty.key }, fkey.Item1.Roles, out fkRole);
+                hubKeys.Add(fk);
+                fKeyRoles.Add(fkRole);
+                n++;
             }
-            panel = ControlPanel();
-            Button button = new Button();
-            button.Name = "UpdateButton";
-            button.Text = "Update";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            button.Click += UpdateLink;
-            panel.Controls.Add(button);
-          
-            button = new Button();
-            button.Name = "deleteButton";
-            button.Text = "Delete";
-            button.Click += parent.Delete;
-            button.Click += OnDelete;
-            button.Location = new System.Drawing.Point(80, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            panel.Controls.Add(button);
-          
-            button = new Button();
-            button.Name = "newHubButton";
-            button.Text = "Add";
-            button.Click += AddField;
-            button.Location = new System.Drawing.Point(160, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            panel.Controls.Add(button);
+           
+            AddButton("Update", UpdateLink);
+            AddButton("Delete", new EventHandler[] { parent.Delete, OnDelete });
+            AddButton("Add Hub", AddHub);
         }
         public override void Edits(IDataVaultConstructor parent)
         {
@@ -424,6 +402,7 @@ namespace DataVault
             Clear();
             Controls.Clear();
             hubKeys.Clear();
+            controlsPanel = null;
             List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
@@ -433,82 +412,30 @@ namespace DataVault
             this.Name = "HubControls";
             this.Size = new Size(430, 175);
             this.TabIndex = 0;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            name = new TextBox();
-            name.Text = "";
-            name.Name = "name";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            sur = new TextBox();
-            label = new Label();
-            label.Text = "Surrogate Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            sur = new TextBox();
-            sur.Name = "sKeyBox";
-            sur.Text = "";
-            sur.Location = new System.Drawing.Point(80, 1);
-            sur.Size = new System.Drawing.Size(100, 20);
-            panel.Controls.Add(sur);
-            keyRoles = new RoleSelector(
-               new HashSet<FieldProperty> { FieldProperty.key },
-               new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.time, FieldProperty.pVal },
-               panel);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            label = new Label();
-            label.Text = "Hub1";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(60, 20);
-            FKEditor hub = new FKEditor();
-            hub.Text = "";
-            hub.Name = "hKeyBox";
-            hub.Location = new System.Drawing.Point(80, 1);
-            hub.Enter+=parent.InvokeSelector(TableType.Hub,hub);
-            hub.Size = sur.Size;
-            fKeyRoles.Add(
-                    new RoleSelector(
-                        new HashSet<FieldProperty> { FieldProperty.fkey },
-                        new HashSet<FieldProperty> { FieldProperty.key }, 
-                         panel)
-                        );
-            panel.Controls.Add(label);
-            panel.Controls.Add(hub);
-            panel = ControlPanel();
-            hubKeys.Add(hub);
-            Button button = new Button();
-            button.Name = "addButton";
-            button.Text = "Add";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            button.Click += AddLink;
-            panel.Controls.Add(button);
-          
-            button = new Button();
-            button.Name = "newHubButton";
-            button.Text = "Add Hub";
-            button.Click += AddField;
-            button.Location = new System.Drawing.Point(80,1);
-            button.Size = new System.Drawing.Size(60, 20);
-           panel.Controls.Add(button);
+            AddField("", "Name:", out name);
+            AddField("", "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, out keyRoles);
+            AddField("", "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, out timeRoles);
+            FKEditor fk;
+            RoleSelector fkRole;
+            AddFkey("", "Hub " + n.ToString() + ":",  TableType.Hub, out fk,
+                new HashSet<FieldProperty> { FieldProperty.fkey }, new HashSet<FieldProperty> { FieldProperty.key },  out fkRole);
+            hubKeys.Add(fk);
+            fKeyRoles.Add(fkRole);
+            n++;
+            AddButton("Create", AddLink);
+            AddButton("Add Hub", AddHub);
         }
         private void UpdateLink(object sender, EventArgs e)
         {
             string newName = "";
             Link link = Table.Load() as Link;
             string newKey = "";
+            string newTime = "";
             List<Fkey> newJoint = null;
             try{
                 TableControls.TrueText(name).Do(s => { newName = s; }, () => { throw new Exception("Link must have a name!");});
                 TableControls.TrueText(sur).Do(s => { newKey = s; }, () => { throw new Exception("Link must have a key!"); });
+                TableControls.TrueText(time).Do(s => { newTime = s; }, () => { throw new Exception("Link must have a time stamp!"); });
                 FkeyList list = FKEditor.UnloadList(hubKeys);
                 newJoint = Enumerable.Zip<string,IDataTable, Fkey>(list.Item1,list.Item2,(str, table) => new Fkey(new DataField(str), table)).ToList();
                
@@ -519,46 +446,34 @@ namespace DataVault
                 link.Joint[k] = new Fkey( link.Joint[k].Item1 <= fKeyRoles[k].Selected, link.Joint[k].Item2);
             link.Key = new DataField(newKey);
             link.Key = link.Key <= keyRoles.Selected;
+            link.TimeStamp = new DataField(newTime) <= timeRoles.Selected;
             parent.Refresh();
             parent.UpdateEditor();
             Publish();
         }
-        private void AddField(object sender, EventArgs e)
+        private void AddHub(object sender, EventArgs e)
         {
+            FKEditor fk;
+            RoleSelector fkRole;
+            AddFkey("", "Hub " + n.ToString() + ":", TableType.Hub, out fk,
+                new HashSet<FieldProperty> { FieldProperty.fkey }, new HashSet<FieldProperty> { FieldProperty.key }, out fkRole);
+            hubKeys.Add(fk);
+            fKeyRoles.Add(fkRole);
             n++;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "Hub" + n.ToString();
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(60, 20);
-            FKEditor hub = new FKEditor();
-            hub.Text = "";
-            hub.Name = "bKeyBox";
-            hub.Location = new System.Drawing.Point(80, 1);
-            hub.Size = new System.Drawing.Size(100, 20);
-            hub.Enter+=parent.InvokeSelector(TableType.Hub,hub);
-            fKeyRoles.Add(
-                    new RoleSelector(
-                        new HashSet<FieldProperty> { FieldProperty.fkey },
-                        new HashSet<FieldProperty> { FieldProperty.key },
-                         panel)
-                        );
-            panel.Controls.Add(label);
-            panel.Controls.Add(hub);
-            hubKeys.Add(hub);
             
         }
         private void AddLink(object sender, EventArgs e)
         {
             string newName = "";
             string newKey = "";
+            string newTime = "";
             List<string> newNames = null;
             List<Hub> newHubs =new List<Hub>();
             try
             {
                 TableControls.TrueText(name).Do(s => { newName = s; }, () => { throw new Exception("Link must have a name!"); });
                 TableControls.TrueText(sur).Do(s => { newKey = s; }, () => { throw new Exception("Link must have a key!"); });
+                TableControls.TrueText(time).Do(s => { newTime = s; }, () => { throw new Exception("Link must have a time stamp!"); });
                 FkeyList list = FKEditor.UnloadList(hubKeys);
                 newNames = list.Item1;
                 foreach (IDataTable table in list.Item2)
@@ -569,6 +484,7 @@ namespace DataVault
             foreach (int k in Enumerable.Range(0, link.Joint.Count))
                 link.Joint[k] = new Fkey(link.Joint[k].Item1 <= fKeyRoles[k].Selected, link.Joint[k].Item2);
             link.Key = link.Key <= keyRoles.Selected;
+            link.TimeStamp = new DataField(newTime) <= timeRoles.Selected;
             parent.AddTable(link);
             Table = link;
             Publish();
@@ -581,9 +497,11 @@ namespace DataVault
         int m = 3;
         TextBox sur;
         TextBox name;
+        TextBox time;
         FKEditor link;
         RoleSelector keyRoles;
         RoleSelector fKeyRoles;
+        RoleSelector timeRoles;
         List<TextBox> measures = new List<TextBox>();
         List<FKEditor> refKeys = new List<FKEditor>();
         List<RoleSelector> mesRoles = new List<RoleSelector>();
@@ -592,11 +510,14 @@ namespace DataVault
         public SateliteControls(IDataTable table, IDataVaultConstructor parent) : base(table, parent) { }
         public override void Edits(IDataTable table, IDataVaultConstructor parent)
         {
-            n = 2;
-            m = 3;
+            n = 1;
+            m = 1;
+            controlsPanel = null;
             Controls.Clear();
             refKeys.Clear();
             measures.Clear();
+            mesRoles.Clear();
+            refRoles.Clear();
             Clear();
             Satelite sat = table as Satelite;
             DataField[] fields = sat.Content();
@@ -609,141 +530,41 @@ namespace DataVault
             this.Name = "satControls";
             this.Size = new Size(420, 175);
             this.TabIndex = 0;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            name = new TextBox();
-            name.Text = sat.Name;
-            name.Name = "bKeyBox";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            sur = new TextBox();
-            label = new Label();
-            label.Text = "Surrogate Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            sur = new TextBox();
-            sur.Name = "sKeyBox";
-            sur.Text = fields[0].ToString();
-            sur.Location = new System.Drawing.Point(80, 1);
-            sur.Size = new System.Drawing.Size(100, 20);
-            keyRoles = new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.key },
-                new HashSet<FieldProperty> { FieldProperty.fkey },
-                fields[0].Roles, panel);
-            panel.Controls.Add(sur);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            link = new FKEditor();
-            label = new Label();
-            label.Text = "Link Key";
-            label.Name = "kinkLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            link.Name = "fKeyBox";
-            link.Text = fields[1].ToString();
-            link.setTable(sat.Link.Item2);
-            link.Location = new System.Drawing.Point(80, 1);
-            link.Size = new System.Drawing.Size(100, 20);
-            link.Enter += parent.InvokeSelector(TableType.Link, link);
-            fKeyRoles = new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.fkey },
-                new HashSet<FieldProperty> { FieldProperty.key },
-                fields[1].Roles, panel);
-            panel.Controls.Add(link);
-            panel.Controls.Add(label);
-            foreach (int k in Enumerable.Range(2, sat.Count() ))
+            AddField(sat.Name, "Name:", out name);
+            AddField(sat.Key.ToString(), "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, sat.Key.Roles, out keyRoles);
+            AddField(sat.TimeStamp.ToString(), "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, sat.TimeStamp.Roles, out timeRoles);
+            AddFkey(sat.Link.Item1.ToString(), "Link:", sat.Link.Item2, TableType.Link, out link, new HashSet<FieldProperty> { FieldProperty.fkey }, new HashSet<FieldProperty> { FieldProperty.key }, sat.Link.Item1.Roles, out fKeyRoles);
+            foreach (DataField measure in sat.Measures)
             {
-                panel = FieldPanel();
-                label = new Label();
-                label.Text = "measure" + (k - 1).ToString();
-                label.Name = "=meLabel";
-                label.Location = new System.Drawing.Point(1, 1);
-                label.Size = new Size(60, 20);
-                TextBox mes = new TextBox();
-                try
-                {
-                    mes.Text = fields[k].ToString();
-                }
-                catch (IndexOutOfRangeException) { }
-                mes.Name = "measureBox";
-                mes.Location = new System.Drawing.Point(80,1);
-                mes.Size = new System.Drawing.Size(100, 30);
-                panel.Controls.Add(label);
-                panel.Controls.Add(mes);
-                mesRoles.Add(new RoleSelector (
-                    new HashSet<FieldProperty>{},
-                    new HashSet<FieldProperty>{FieldProperty.key, FieldProperty.fkey},
-                    fields[k].Roles, panel));
+               
+                TextBox mes;
+                RoleSelector mesRole;
+                AddField(measure.ToString(), "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, measure.Roles, out mesRole);
                 measures.Add(mes);
-                n = k;
+                mesRoles.Add(mesRole);
+                n++;
+
             }
-            m = n;
-            foreach (int k in Enumerable.Range(0, sat.References.Count))
+            foreach (Fkey fk in sat.References)
             {
-                panel = FieldPanel();
-                label = new Label();
-                label.Text = "reference" + (k - n + 1).ToString();
-                label.Name = "=meLabel";
-                label.Location = new System.Drawing.Point(1, 1);
-                label.Size = new Size(60, 20);
-                FKEditor reference = new FKEditor();
-                reference.Text = sat.References[k].Item1.ToString();
-                reference.setTable(sat.References[k].Item2);
-                reference.Name = "refBox";
-                reference.Location = new System.Drawing.Point(80, 1);
-                reference.Size = new System.Drawing.Size(100, 30);
-                reference.Enter+=parent.InvokeSelector(TableType.Reference, reference);
-                panel.Controls.Add(label);
-                panel.Controls.Add(reference);
-                refRoles.Add(new RoleSelector(
-                   new HashSet<FieldProperty> { FieldProperty.fkey},
-                   new HashSet<FieldProperty> { FieldProperty.key },
-                   sat.References[k].Item1.Roles, panel));
-                refKeys.Add(reference);
-                m = k;
+                
+                FKEditor editor;
+                RoleSelector refRole;
+                AddFkey(fk.Item1.ToString(), "Reference " + m.ToString() + ":", fk.Item2, TableType.Reference, out editor, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, fk.Item1.Roles, out refRole);
+                refKeys.Add(editor);
+                refRoles.Add(refRole);
+                m++;
             }
-            panel = ControlPanel();
-            Button button = new Button();
-            button.Name = "UpdateButton";
-            button.Text = "Update";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            button.Click += UpdateSatelite;
-            panel.Controls.Add(button);
-       
-            button = new Button();
-            button.Name = "deleteButton";
-            button.Text = "Delete";
-            button.Click += parent.Delete;
-            button.Click += OnDelete;
-            button.Location = new System.Drawing.Point(80, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            panel.Controls.Add(button);
-        
-            button = new Button();
-            button.Name = "newRefButton";
-            button.Text = "Add ref";
-            button.Click += AddRef;
-            button.Location = new System.Drawing.Point(160, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            panel.Controls.Add(button);
-            button = new Button();
-            button.Name = "newRefButton";
-            button.Text = "Add field";
-            button.Click += AddField;
-            button.Location = new System.Drawing.Point(240, 1);
-            button.Size = new System.Drawing.Size(60, 20);
-            panel.Controls.Add(button);
+            AddButton("Update", UpdateSatelite);
+            AddButton("Delete", new EventHandler[] { parent.Delete, OnDelete });
+            AddButton("Add reference", AddRef);
+            AddButton("Add measure", AddMeasure);
         }
         public override void Edits(IDataVaultConstructor parent)
         {
-            n = 2;
-            m = 3;
+            n = 1;
+            m = 1;
+            controlsPanel = null;
             Controls.Clear();
             measures.Clear();
             Clear();
@@ -756,111 +577,26 @@ namespace DataVault
             this.Name = "satControls";
             this.Size = new Size(420, 175);
             this.TabIndex = 0;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            name = new TextBox();
-            name.Text = "";
-            name.Name = "bKeyBox";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            sur = new TextBox();
-            label = new Label();
-            label.Text = "Surrogate Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            sur = new TextBox();
-            sur.Name = "sKeyBox";
-            sur.Text = "";
-            sur.Location = new System.Drawing.Point(80, 1);
-            sur.Size = new System.Drawing.Size(100, 20);
-            keyRoles = new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.key },
-                new HashSet<FieldProperty> { FieldProperty.fkey },
-                panel);
-            panel.Controls.Add(sur);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            link = new FKEditor();
-            label = new Label();
-            label.Text = "Link Key";
-            label.Name = "kinkLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            link.Name = "fKeyBox";
-            link.Text = "";
-            link.Location = new System.Drawing.Point(80, 1);
-            link.Size = new System.Drawing.Size(100, 20);
-            link.Enter+=parent.InvokeSelector(TableType.Link,link);
-            fKeyRoles = new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.fkey },
-                new HashSet<FieldProperty> { FieldProperty.key },
-                panel);
-            panel.Controls.Add(link);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            label = new Label();
-            label.Text = "measure1";
-            label.Name = "meLabel";
-            label.Size = new Size(60, 20);
-            label.Location = new System.Drawing.Point(1, 1);
-            TextBox mes = new TextBox();
-            mes.Text = "";
-            mes.Name = "measureBox";
-            mes.Location = new System.Drawing.Point(80, 1);
-            mes.Size = new System.Drawing.Size(100, 30);
-            mesRoles.Add(new RoleSelector(
-                new HashSet<FieldProperty> { },
-                new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key},
-                panel));
-            panel.Controls.Add(label);
-            panel.Controls.Add(mes);
+            AddField("", "Name:", out name);
+            AddField("", "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, out keyRoles);
+            AddField("", "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, out timeRoles);
+            AddFkey("", "Link:", TableType.Link, out link, new HashSet<FieldProperty> { FieldProperty.fkey }, new HashSet<FieldProperty> { FieldProperty.key }, out fKeyRoles);
+            TextBox mes;
+            RoleSelector mesRole;
+            AddField("", "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey },  out mesRole);
             measures.Add(mes);
-            panel = FieldPanel();
-            label = new Label();
-            label.Text = "reference" + (1).ToString();
-            label.Name = "=meLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(60, 20);
-            refRoles.Add(new RoleSelector(
-                new HashSet<FieldProperty> {  FieldProperty.fkey },
-                new HashSet<FieldProperty> {  FieldProperty.key },
-                panel));
-            FKEditor reference = new FKEditor();
-            reference.Text = "";
-            reference.Name = "measureBox";
-            reference.Location = new System.Drawing.Point(80, 1);
-            reference.Size = new System.Drawing.Size(100, 30);
-            reference.Enter+=parent.InvokeSelector(TableType.Reference,reference);
-            panel.Controls.Add(label);
-            panel.Controls.Add(reference);
-            refKeys.Add(reference);
-            panel = ControlPanel();
-            Button button = new Button();
-            button.Name = "DDButton";
-            button.Text = "Add";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            button.Click += AddSatelite;
-            panel.Controls.Add(button);
-            button = new Button();
-            button.Name = "newRefButton";
-            button.Text = "Add ref";
-            button.Click += AddRef;
-            button.Location = new System.Drawing.Point(80, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            panel.Controls.Add(button);
-            button = new Button();
-            button.Name = "newRefButton";
-            button.Text = "Add field";
-            button.Click += AddField;
-            button.Location = new System.Drawing.Point(160, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            panel.Controls.Add(button);
+            mesRoles.Add(mesRole);
+            n++;
+            FKEditor editor;
+            RoleSelector refRole;
+            AddFkey("", "Reference " + m.ToString() + ":", TableType.Reference, out editor, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, out refRole);
+            refKeys.Add(editor);
+            refRoles.Add(refRole);
+            m++;
+            AddButton("Create", AddSatelite);
+            AddButton("Add measure", AddMeasure);
+            AddButton("Add reference", AddRef);
+
         }
 
         protected void UpdateSatelite(Object sender, EventArgs args)
@@ -868,6 +604,7 @@ namespace DataVault
 
             string newName = null;
             string newKey = null;
+            string newTime = null;
             Fkey newLink = null;
             List<DataField> newFields = new List<DataField>();
             List<Fkey> newRefs = new List<Fkey>();
@@ -875,6 +612,7 @@ namespace DataVault
             {
                 TableControls.TrueText(name).Do(s => newName = s, () => { throw new System.ArgumentException("Table must have a name!"); });
                 TableControls.TrueText(sur).Do(s => newKey = s, () => { throw new System.ArgumentException("Table must have a key!"); });
+                TableControls.TrueText(time).Do(s => newTime = s, () => { throw new System.ArgumentException("Table must have a time stamp!"); });
                 FKEditor.Unload(link).Do(t => newLink = t , () =>{throw new System.ArgumentException("Satelite must have a foreign key of a Link!");});
                 foreach (int k in Enumerable.Range(0,measures.Count))
                     TableControls.TrueText(measures[k]).Do(s => newFields.Add(new DataField(s) <= mesRoles[k].Selected));
@@ -886,6 +624,7 @@ namespace DataVault
                 Satelite satelite = Table.Load() as Satelite;
                 satelite.Name = newName;
                 satelite.Key = new DataField(newKey) <= keyRoles.Selected;
+                satelite.TimeStamp = new DataField(newTime) <= timeRoles.Selected;
                 satelite.Link = new Fkey(newLink.Item1 <= fKeyRoles.Selected, newLink.Item2);
                 satelite.References = newRefs;
                 satelite.Measures = newFields;
@@ -897,56 +636,30 @@ namespace DataVault
         }
         protected void AddRef(Object sender, EventArgs args)
         {
+           
+            FKEditor editor;
+            RoleSelector refRole;
+            AddFkey("", "Reference " + m.ToString() + ":", TableType.Reference, out editor, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, out refRole);
+            refKeys.Add(editor);
+            refRoles.Add(refRole);
             m++;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "reference" + (m - 2).ToString();
-            label.Name = "=meLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(80, 20);
-            FKEditor reference = new FKEditor();
-            reference.Text = "";
-            reference.Name = "refBox";
-            reference.Location = new System.Drawing.Point(80, 1);
-            reference.Size = new System.Drawing.Size(100, 30);
-            reference.Enter+=parent.InvokeSelector(TableType.Reference,reference);
-            panel.Controls.Add(label);
-            panel.Controls.Add(reference);
-            refKeys.Add(reference);
-            refRoles.Add(new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.fkey },
-                new HashSet<FieldProperty> { FieldProperty.key },
-                panel));
-            Refresh();
         }
-        protected void AddField(Object sender, EventArgs args)
+        protected void AddMeasure(Object sender, EventArgs args)
         {
+            TextBox mes;
+            RoleSelector mesRole;
+            AddField("", "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, out mesRole);
+            measures.Add(mes);
+            mesRoles.Add(mesRole);
             n++;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "measure" + (n - 1).ToString();
-            label.Name = "=meLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(60, 20);
-            TextBox field = new TextBox();
-            field.Text = "";
-            field.Name = "fieldBox";
-            field.Location = new System.Drawing.Point(80, 1);
-            field.Size = new System.Drawing.Size(100, 30);
-            panel.Controls.Add(label);
-            panel.Controls.Add(field);
-            measures.Add(field);
-            mesRoles.Add(new RoleSelector(
-                new HashSet<FieldProperty> { },
-                new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key },
-                panel));
-            Refresh();
+
         }
         protected void AddSatelite(Object sender, EventArgs args)
         {
 
             string newName = null;
             string newKey = null;
+            string newTime = null;
             Fkey newLink = null;
             List<string> newFields = new List<string>();
             List<Reference> newRefs = new List<Reference>();
@@ -955,6 +668,7 @@ namespace DataVault
             {
                 TableControls.TrueText(name).Do(s => newName = s, () => { throw new System.ArgumentException("Table must have a name!"); });
                 TableControls.TrueText(sur).Do(s => newKey = s, () => { throw new System.ArgumentException("Table must have a key!"); });
+                TableControls.TrueText(time).Do(s => newTime = s, () => { throw new System.ArgumentException("Table must have a time stamp!"); });
                 FKEditor.Unload(link).Do(s => newLink = s, () =>{throw new System.ArgumentException("Satelite must have a foreign key of a Link!");} );
                 foreach (TextBox mes in measures)
                     TableControls.TrueText(mes).Do(s => newFields.Add(s));
@@ -964,6 +678,7 @@ namespace DataVault
                 Link l = newLink.Item2 as Link;
                 Satelite satelite = new Satelite(newName, l , newLink.Item1.ToString(), newKey, newFields, newRefs, refNames);
                 satelite.Key = satelite.Key <= keyRoles.Selected;
+                satelite.TimeStamp = new DataField(newTime) <= timeRoles.Selected;
                 satelite.Link = new Fkey( satelite.Link.Item1 <= fKeyRoles.Selected, satelite.Link.Item2);
                 foreach(int k in Enumerable.Range(0,satelite.Measures.Count))
                     satelite.Measures[k]= satelite.Measures[k] <= mesRoles[k].Selected;
@@ -981,9 +696,8 @@ namespace DataVault
     public class ReferenceControls : TableControls
     {
         int n = 1;
-        TextBox name = new TextBox();
-        TextBox sur = new TextBox();
-        RoleSelector keyRoles;
+        TextBox name, sur, time;
+        RoleSelector keyRoles, timeRoles;
         List<TextBox> measures = new List<TextBox>();
         List<RoleSelector> mesRoles = new List<RoleSelector>();
         public ReferenceControls(IDataVaultConstructor parent) : base(parent) { }
@@ -992,93 +706,37 @@ namespace DataVault
         {
             n = 1;
             Clear();
+            controlsPanel = null;
             Controls.Clear();
             measures.Clear();
-            List<Point> movables = new List<Point>();
-            this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+            mesRoles.Clear();
+            //this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            //| System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+            Dock = DockStyle.Fill;
             this.AutoScroll = true;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new Size(420, 175);
+            //this.Size = new Size(420, parent.Height() - 50);
             this.TabIndex = 0;
             Reference reference = table as Reference;
-            DataField[] fields = reference.Content();
-            Label label = new Label();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            Panel panel = FieldPanel();
-            name = new TextBox();
-            name.Text = reference.Name;
-            name.Name = "bKeyBox";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            sur = new TextBox();
-            label = new Label();
-            label.Text = "Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            sur = new TextBox();
-            sur.Name = "sKeyBox";
-            sur.Text = fields[0].ToString();
-            sur.Location = new System.Drawing.Point(80, 1);
-            sur.Size = new System.Drawing.Size(100, 20);
-            keyRoles = new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.key },
-                new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.pID },
-                fields[0].Roles, panel);
-            panel.Controls.Add(sur);
-            panel.Controls.Add(label);
-            foreach (int k in Enumerable.Range(0,  reference.Fields.Count))
+            AddField(reference.Name, "Name:", out name);
+            AddField(reference.Key.ToString(), "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, reference.Key.Roles, out keyRoles);
+            AddField(reference.TimeStamp.ToString(), "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, reference.TimeStamp.Roles, out timeRoles);
+            foreach (DataField measure in reference.Fields)
             {
-                panel = FieldPanel();
-                label = new Label();
-                label.Text = "Field" + k.ToString();
-                label.Name = "nameLabel";
-                label.Location = new System.Drawing.Point(1, 1);
-                label.Size = new Size(80, 20);
-                TextBox field = new TextBox();
-                field.Text = reference.Fields[k].ToString();
-                field.Name = "bKeyBox";
-                field.Location = new System.Drawing.Point(80, 1);
-                field.Size = new System.Drawing.Size(100, 1);
-                mesRoles.Add(new RoleSelector(
-                  new HashSet<FieldProperty> { },
-                  new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key },
-                  reference.Fields[k].Roles, panel));
-                panel.Controls.Add(label);
-                panel.Controls.Add(field);
-                measures.Add(field);
-                n = k;
+
+                TextBox mes;
+                RoleSelector mesRole;
+                AddField(measure.ToString(), "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, measure.Roles, out mesRole);
+                measures.Add(mes);
+                mesRoles.Add(mesRole);
+                n++;
             }
-            panel = ControlPanel();
-            Button button = new Button();
-            button.Name = "UpdateButton";
-            button.Text = "Update";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            button.Click += UpdateRef;
-            panel.Controls.Add(button);
-            button = new Button();
-            button.Name = "deleteButton";
-            button.Text = "Delete";
-            button.Click += parent.Delete;
-            button.Click += OnDelete;
-            button.Location = new System.Drawing.Point(80, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            panel.Controls.Add(button);
-            button = new Button();
-            button.Name = "newFieldButton";
-            button.Text = "Add Field";
-            button.Click += AddField;
-            button.Location = new System.Drawing.Point(160, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            panel.Controls.Add(button);
+            AddButton("Update", UpdateRef);
+            AddButton("Delete", new EventHandler[] { parent.Delete, OnDelete });
+            AddButton("Add Measure", AddMeasure);
+
         }
         public override void Edits(IDataVaultConstructor parent)
         {
@@ -1086,88 +744,40 @@ namespace DataVault
             Clear();
             Controls.Clear();
             measures.Clear();
-            List<Point> movables = new List<Point>();
-            this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+            controlsPanel = null;
+            mesRoles.Clear();
+            //this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            //| System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+            Dock = DockStyle.Fill;
             this.AutoScroll = true;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new Size(420, 175);
+           // this.Size = new Size(420, parent.Height() - 50);
             this.TabIndex = 0;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "Name";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            name = new TextBox();
-            name.Text = "";
-            name.Name = "name";
-            name.Location = new System.Drawing.Point(80, 1);
-            name.Size = new System.Drawing.Size(100, 20);
-            panel.Controls.Add(name);
-            panel.Controls.Add(label);
-            sur = new TextBox();
-            label = new Label();
-            label.Text = "Surrogate Key";
-            label.Name = "sKeyLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            panel = FieldPanel();
-            sur = new TextBox();
-            sur.Name = "sKeyBox";
-            sur.Text = "";
-            sur.Location = new System.Drawing.Point(80, 1);
-            sur.Size = new System.Drawing.Size(100, 20);
-            keyRoles = new RoleSelector(
-                new HashSet<FieldProperty> { FieldProperty.key },
-                new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.pID },
-                panel);
-            panel.Controls.Add(sur);
-            panel.Controls.Add(label);
-            panel = FieldPanel();
-            label = new Label();
-            label.Text = "Field1";
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(80, 20);
-            TextBox mes = new TextBox();
-            mes.Text = "";
-            mes.Name = "hKeyBox";
-            mes.Location = new System.Drawing.Point(80, 1);
-            mes.Size = new System.Drawing.Size(100, 60);
-            mesRoles.Add(new RoleSelector(
-               new HashSet<FieldProperty> { },
-               new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key },
-               panel));
-            panel.Controls.Add(label);
-            panel.Controls.Add(mes);
+            AddField("", "Name:", out name);
+            AddField("", "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey },  out keyRoles);
+            AddField("", "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key },  out timeRoles);
+            TextBox mes;
+            RoleSelector mesRole;
+            AddField("", "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey },  out mesRole);
             measures.Add(mes);
-            panel = ControlPanel();
-            Button button = new Button();
-            button.Name = "addButton";
-            button.Text = "Create";
-            button.Location = new System.Drawing.Point(1, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            button.Click += AddRef;
-            panel.Controls.Add(button);
-            
-            button = new Button();
-            button.Name = "newHubButton";
-            button.Text = "Add Field";
-            button.Click += AddField;
-            button.Location = new System.Drawing.Point(80, 1);
-            button.Size = new System.Drawing.Size(80, 20);
-            panel.Controls.Add(button);
+            mesRoles.Add(mesRole);
+            n++;
+            AddButton("Create", AddRef);
+            AddButton("Add measure", AddMeasure);
         }
         protected void UpdateRef(object srnder, EventArgs args)
         {
             string newName = null;
             string newKey = null;
+            string newTime = null;
             List<DataField> newFields = new List<DataField>();
             try
             {
                 TableControls.TrueText(name).Do(s => newName = s, () => { throw new ArgumentException("Table must have a name!"); });
                 TableControls.TrueText(sur).Do(s => newKey = s, () => { throw new ArgumentException("Table must have a Key!"); });
+                TableControls.TrueText(time).Do(s => newTime = s, () => { throw new ArgumentException("Table must have a time stamp!"); });
                 foreach (int k in Enumerable.Range(0,measures.Count))
                     TableControls.TrueText(measures[k]).Do(s => newFields.Add(new DataField(s) <= mesRoles[k].Selected));
                 if (newFields.Count == 0)
@@ -1175,6 +785,7 @@ namespace DataVault
                 Reference reference = Table.Load() as Reference;
                 reference.Name = newName;
                 reference.Key = new DataField(newKey) <= keyRoles.Selected;
+                reference.TimeStamp = new DataField(newKey) <= timeRoles.Selected;
                 reference.Fields = newFields;
                 parent.UpdateEditor();
                 parent.Refresh();
@@ -1186,17 +797,20 @@ namespace DataVault
         {
             string newName = null;
             string newKey = null;
+            string newTime = null;
+            TableControls.TrueText(time).Do(s => newTime = s, () => { throw new ArgumentException("Table must have a time stamp!"); });
             List<string> newFields = new List<string>();
             try
             {
                 TableControls.TrueText(name).Do(s => newName = s, () => { throw new ArgumentException("Table must have a name!"); });
-                TableControls.TrueText(sur).Do(s => newKey = s, () => { throw new ArgumentException("Table must have a Key!"); });
+                TableControls.TrueText(sur).Do(s => newKey = s, () => { throw new ArgumentException("Table must have a Key!"); }); 
                 foreach (TextBox field in measures)
                     TableControls.TrueText(field).Do(s => newFields.Add(s), () => { });
                 if (newFields.Count == 0)
                     throw new ArgumentException("Table must have at least one meaningful field!");
                 Reference reference = new Reference(newName, newFields, newKey);
                 reference.Key = reference.Key <= keyRoles.Selected;
+                reference.TimeStamp = new DataField(newKey) <= timeRoles.Selected;
                 foreach (int k in Enumerable.Range(0, reference.Fields.Count))
                     reference.Fields[k] = reference.Fields[k] <= mesRoles[k].Selected;
                 Table = reference;
@@ -1206,28 +820,14 @@ namespace DataVault
             }
             catch (ArgumentException e) { MessageBox.Show(e.Message); }
         }
-        protected void AddField(object sender, EventArgs args)
+        protected void AddMeasure(object sender, EventArgs args)
         {
+            TextBox mes;
+            RoleSelector mesRole;
+            AddField("", "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, out mesRole);
+            measures.Add(mes);
+            mesRoles.Add(mesRole);
             n++;
-            Panel panel = FieldPanel();
-            Label label = new Label();
-            label.Text = "Field" + n.ToString();
-            label.Name = "nameLabel";
-            label.Location = new System.Drawing.Point(1, 1);
-            label.Size = new Size(80, 20);
-            TextBox field = new TextBox();
-            field.Text = "";
-            field.Name = "bKeyBox";
-            field.Location = new System.Drawing.Point(80, 1);
-            field.Size = new System.Drawing.Size(100, 1);
-            mesRoles.Add(new RoleSelector(
-              new HashSet<FieldProperty> { },
-              new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key },
-              panel));
-            panel.Controls.Add(label);
-            panel.Controls.Add(field);
-            measures.Add(field);
-            Refresh();
         }
     }
     }  
