@@ -125,7 +125,7 @@ namespace Petri
             public int[] Firable()
             {
                 List<int> firable = new List<int>();
-                for (int i = 0; i < model.places; i++)
+                for (int i = 0; i < model.tc; i++)
                     if (model.IsFirable(i))
                         firable.Add(i);
                 return firable.ToArray();
@@ -162,15 +162,17 @@ namespace Petri
         class VisualPetri:IVisualSet
         {
             PetriNet model;
-            Dictionary<string, Drawable> picture;
+            Dictionary<string, Drawable> picture = new Dictionary<string,Drawable>();
             Drawable selected;
             Int32 code = -1;
             Alphabeth alpha;
             public VisualPetri(PetriNet model, Alphabeth alpha)
             {
                 this.model = model;
+                this.alpha = alpha;
                 if (!(model.places == 0 || model.tc == 0))
                     PlaceNode(0, 10, 10);
+                
             }
             public void Draw(Graphics g)
             {
@@ -216,11 +218,11 @@ namespace Petri
                 picture.Add("p" + n.ToString(),node);
                 foreach(int t in Enumerable.Range(0,model.tc))
                 {
-                    int weight = model.transitions[n,t];
+                    int weight = model.transitions[t,n];
                     if(weight != 0)
                         if(!picture.Keys.Contains("t" + t.ToString()))
                         {
-                            Transition tr = PlaceTr(t, x + Math.Sign(weight)*gen.Next(20,71),y + scew + gen.Next(0,71));
+                            Transition tr = PlaceTr(t, x + gen.Next(100,201),y + scew + gen.Next(30,101));
                             picture.Add("a." + "p" + n.ToString() + "t" + t.ToString(), new Arrow(node, tr, weight));
                             scew+=70;
                         }
@@ -235,11 +237,11 @@ namespace Petri
                 picture.Add("t" + t.ToString(), tr);
                 foreach (int n in Enumerable.Range(0, model.places))
                 {
-                    int weight = model.transitions[n, t];
+                    int weight = model.transitions[t, n];
                     if (weight != 0)
                         if (!picture.Keys.Contains("p" + n.ToString()))
                         {
-                           Node node = PlaceNode(t, x - Math.Sign(weight) * gen.Next(20, 101), y + scew + gen.Next(0, 101));
+                           Node node = PlaceNode(n, x + Math.Sign(weight) * gen.Next(120,(int) Math.Max(161,Math.Min(x,201))), y + scew + gen.Next(0, 101));
                             picture.Add("a."+"p" + n.ToString() + "t" + t.ToString(), new Arrow(node, tr, weight));
                             scew += 100;
                         }

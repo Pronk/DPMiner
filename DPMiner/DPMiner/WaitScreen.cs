@@ -46,7 +46,7 @@ namespace DPMiner
             Controls.Add(pb);
 
             messageBoard = new Label();
-            messageBoard.Text = "";
+            messageBoard.Text = "Waiting";
             messageBoard.Dock = DockStyle.Bottom;
             Controls.Add(messageBoard);
 
@@ -54,6 +54,7 @@ namespace DPMiner
             bw.DoWork += DoWork;
             bw.ProgressChanged+=Report;
             bw.RunWorkerCompleted += Complete;
+            bw.RunWorkerAsync(lb);
             
         }
         protected void DoWork(object sender, DoWorkEventArgs args )
@@ -68,7 +69,7 @@ namespace DPMiner
                 n++;
             }
             args.Result = lb.Log;
-            args.Cancel = true;
+           // args.Cancel = true;
 
         }
         protected void Report(object sender, ProgressChangedEventArgs e )
@@ -90,7 +91,7 @@ namespace DPMiner
                 throw new Exception();
             Global.Model = result;
 
-            PetriView next = new PetriView(result, lb.Alphabeth);
+            PetriView next = new PetriView(result, lb.Alphabeth,Parent);
             next.Location = Location;
             next.Size = Size;
             return next;

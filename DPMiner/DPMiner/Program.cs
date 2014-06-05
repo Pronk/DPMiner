@@ -33,7 +33,7 @@ namespace DPMiner
                     for (int i = 0; true; i++)
                     {
                         n = i;
-                        mat[0, 0] = mat[i, 0];
+                        mat[i, 0] = mat[i, 0];
                     }
                 }
                 catch (Exception) { }
@@ -47,16 +47,23 @@ namespace DPMiner
             {
                 bool b = true;
                 foreach (T el1 in contained)
+                {
+                    b = true;
                     foreach (T el2 in container)
                     {
+                        
                         if (el1.Equals(el2))
                         {
                             b = false;
                             break;
                         }
+
                     }
-                if (b)
-                    return false;
+                    if (b)
+                        return false;
+                   
+                }
+                
                 return true;
             }
             public static string Typename(Type t)

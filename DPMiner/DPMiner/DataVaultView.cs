@@ -77,19 +77,21 @@ namespace DataVault
             this.parent = parent;
             this.parent.RemoveByKey("panelTable");
             panel = new Panel();
-            panel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Bottom)
+          panel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right)));
-            panel.AutoScroll = false;
+           
+            panel.Height = 250;
+            panel.AutoScroll = true;
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            panel.Location = new System.Drawing.Point(100, 200);
+           panel.Location = new System.Drawing.Point(100, 200);
             panel.Name = "panelTable";
-            panel.Size = new System.Drawing.Size(parent.Width() - 273, parent.Height() - 200);
+            panel.Size = new System.Drawing.Size(parent.Width() - 273, 250);
             panel.TabIndex = 0;
             this.parent.Add(panel);
             Label tableLabel = new Label();
             tableLabel.Text = self.ToString();
             tableLabel.Name = self.ToString();
-            //tableLabel.Left = 30;
+           //tableLabel.Left = 30;
             //tableLabel.Top = 10;
             tableLabel.Dock = DockStyle.Top;
             tableLabel.TextAlign = ContentAlignment.MiddleCenter;
@@ -141,17 +143,18 @@ namespace DataVault
         {
             Type trueType = self.GetType();
             panel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left) | AnchorStyles.Right));
+           | System.Windows.Forms.AnchorStyles.Left) | AnchorStyles.Right));
+            
             panel.AutoScroll = false;
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             panel.Location = new System.Drawing.Point(-1, -1);
             panel.Name = "panelEditor";
-            panel.Size = new System.Drawing.Size(parent.Width() - 173, 200);
+            panel.Size = new System.Drawing.Size(parent.Width() - 173, parent.Height() - 250);
             panel.TabIndex = 0;
             Label label = new Label();
             label.Text = Program.Util.Typename(trueType) + " " + self.ToString();
             label.Name = ToString();
-            //label.Left = 10;
+            // label.Left = 10;
             //label.Top = 10;
             //label.Size = new System.Drawing.Size(160, 15);
             label.TextAlign = ContentAlignment.MiddleCenter;
@@ -166,11 +169,13 @@ namespace DataVault
             panel = new Panel();
             panel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left) | AnchorStyles.Right));
+           
             panel.AutoScroll = false;
             panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             panel.Location = new System.Drawing.Point(-1, -1);
             panel.Name = "panelEditor";
-            panel.Size = new System.Drawing.Size(parent.Width() - 173, 200);
+            panel.Height = parent.Height() - 200;
+            panel.Size = new System.Drawing.Size(parent.Width() - 173, parent.Height() - 250);
             panel.TabIndex = 0;
             Label label = new Label();
             label.Text = type.ToString() + ". Enter the name.";

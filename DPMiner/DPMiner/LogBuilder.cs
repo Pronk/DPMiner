@@ -67,22 +67,23 @@ namespace DPMiner
             Dictionary<string, string> old = current;
             current = stream.ReadTuple();
             if (current == null)
+            {
+                logs.Add(ID(old),log);
                 return false;
-            foreach (KeyValuePair<string, List<string>> pair in setup.ProcessID)
-                foreach (string name in pair.Value)
-                {
-                    string s = pair.Key + "." + name;
-                    if (old[s] != current[s])
-                    {
-                        string id = ID(old);
-                        if (logs.Keys.Contains(id))
-                            logs[id].AddRange(log);
-                        else
-                            logs.Add(id, log);
-                        log = new List<int>();
-                    }
+            }
+           
+                   
+            if (ID(old) != ID(current))
+            {
+                string id = ID(old);
+                if (logs.Keys.Contains(id))
+                    logs[id].AddRange(log);
+                else
+                    logs.Add(id, log);
+                log = new List<int>();
+            }
 
-                }
+                
             foreach (KeyValuePair<string, List<string>> pair in setup.ProcessVariables)
                 foreach (string name in pair.Value)
                 {
@@ -92,7 +93,7 @@ namespace DPMiner
             List<int> happened = new List<int>();
             foreach(EventLogic word in logic)
             {
-                if (word.isHappened(input))
+                if (word.HasHappened(input))
                     happened.Add(alphabeth.Encode(word.Name));
             }
             if (happened.Count == 1)
@@ -107,7 +108,7 @@ namespace DPMiner
         {
             return setup.ProcessID.SelectMany<KeyValuePair<string, List<string>>, string>
                 (kvp => kvp.Value.
-                Select<string, string>(str => kvp.Key + "." + str)).
+                Select<string, string>(str => tuple[kvp.Key + "." + str])).
                 Aggregate<string, string>("", (acc, str) => acc + str);
         }
 

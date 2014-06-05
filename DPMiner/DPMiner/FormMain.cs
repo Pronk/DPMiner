@@ -42,6 +42,7 @@ namespace DPMiner
             {
                 IMiningState next = current.Next();
                 current.Dispose();
+                next.Handle().Anchor = current.Handle().Anchor;
                 current = next;
                 Controls.Add(current.Handle());
                 buttonNext.Visible = !current.IsEnd();

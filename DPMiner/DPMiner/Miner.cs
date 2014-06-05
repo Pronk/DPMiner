@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using Petri;
-
+using Extensions;
 namespace DPMiner
 {   
 	
@@ -41,10 +41,16 @@ namespace DPMiner
 		for(int i=0; i<size; i++)
 			for(int j=i; j<size; j++)
 				{
-					if(relationship[i,j]&&!relationship[j,i])
-						relations[i,j] = Relationships.preceder;
-					if(!relationship[i,j]&&relationship[j,i])
-						relations[i,j] = Relationships.descend;
+                    if (relationship[i, j] && !relationship[j, i])
+                    {
+                        relations[i, j] = Relationships.preceder;
+                        continue;
+                    }
+                    if (!relationship[i, j] && relationship[j, i])
+                    {
+                        relations[i, j] = Relationships.descend;
+                        continue;
+                    }
 					if(relationship[i,j]&&relationship[j,i])
 						relations[i,j] = Relationships.parallel;
 					else
@@ -52,15 +58,22 @@ namespace DPMiner
 				}
 			return relations;
 	}
+    private List<int> Range(int n)
+    {
+        List<int> range = new List<int>();
+        foreach (int a in Enumerable.Range(0, n))
+            range.Add(a);
+        return range;
+    }
 	private List<Tuple<List<int>,List<int>>> GetMoves(Relationships[,] matrix )
 	{
             	List<Tuple<List<int>, List<int>>> pairs = new List<Tuple<List<int>, List<int>>>();
-        	List<List<int>> independs = GetAllSuchThat(size, (set, j) => Enumerable.All<int>(set, i => matrix[i, j] == Relationships.choice));
-            	foreach(List<int> set in independs)
+        	List<HashSet<int>> independs = GetAllSuchThat((set, j) => Enumerable.All<int>(set, i => matrix[i, j] == Relationships.choice), new List<HashSet<int>>(), Range(size));
+            	foreach(HashSet<int> set in independs)
             	{
-                	List<List<int>> descends = GetAllSuchThat(size, GetDescentsChecker(set, matrix));
-        		foreach(List<int> descend in descends)
-                    		pairs.Add(new Tuple<List<int>,List<int>>(set,descend));
+                    List<HashSet<int>> descends = GetAllSuchThat(GetDescentsChecker(set.ToList(), matrix), new List<HashSet<int>>(), Range(size));
+        		foreach(HashSet<int> descend in descends)
+                    		pairs.Add(new Tuple<List<int>,List<int>>(set.ToList(),descend.ToList()));
             	}
             	 pairs = RemoveSmallOnes(pairs);
             	 return pairs;
@@ -70,7 +83,7 @@ namespace DPMiner
         private List<Tuple<List<int>, List<int>>> RemoveSmallOnes(List<Tuple<List<int>, List<int>>> pairs)
         {
             for(int i =0; i<pairs.Count; i++)
-                for(int j =0; j<pairs.Count; i++)
+                for(int j =0; j<pairs.Count; j++)
                     if(i!=j)
                         if(Program.Util.IsContained<int>(pairs[i].Item1,pairs[j].Item1)&&Program.Util.IsContained<int>(pairs[i].Item2,pairs[j].Item2))
                         {
@@ -82,25 +95,44 @@ namespace DPMiner
             return pairs;
                    
         }
-        private List<List<int>> GetAllSuchThat(int limit, Func<List<int>,int,bool> predicat) 
-        {    
-            List<List<int>> combinations=new List<List<int>>();
-            for(int i=0; i<limit;i++)
-            {
-                List<int> set = new List<int>();
-                set.Add(i);
-                for (int next = i + 1; next < limit; next++)
-                {
-                    for (int j = next; j < limit; j++)
-                        if (predicat(set, j))
-                            set.Add(j);
-                    if (!combinations.Contains(set) && set.Count != 0)
-                        combinations.Add(set);
-                }
-            }
-            return combinations;
-        
-        }
+        private List<HashSet<int>> GetAllSuchThat( Func<List<int>,int,bool> predicat,  List<HashSet<int>> combinations, IEnumerable<int> source ) 
+        {
+           List<HashSet<int>> newComb;
+           if(combinations.Count == 0)
+           {
+               foreach (int n in source)
+               {
+                   if (predicat(new List<int> { }, n))
+                   {
+                       combinations.Add(new HashSet<int>() { n });
+                       newComb = (GetAllSuchThat(predicat, new List<HashSet<int>> { new HashSet<int>() { n } }, source.ToList().CloneWithout(n)));
+                       foreach (HashSet<int> set in newComb)
+                           if (!combinations.Contains(set))
+                               combinations.Add(set);
+                   }
+                   
+               }
+
+               return combinations;
+           }
+           newComb = new List<HashSet<int>>();
+           foreach(HashSet<int> x in combinations)
+               foreach(int n in source)
+               {
+                   if(predicat(x.ToList(), n))
+                   {
+                       HashSet<int> newSet = new HashSet<int>();
+                        foreach(int a in x)
+                            newSet.Add(a);
+                        newSet.Add(n);
+                        newComb.Add(newSet);
+                        List<HashSet<int>> iter = GetAllSuchThat(predicat,new List<HashSet<int>>(){newSet},source.ToList().CloneWithout(n).ToList());
+                        newComb.AddRange(new HashSet<HashSet<int>>(iter));
+
+                   }
+               }
+          return newComb;
+        } 
         private Func<List<int>,int,bool> GetDescentsChecker(List<int> set, Relationships[,] matrix)
         {
             return (newSet, j) =>
@@ -111,9 +143,9 @@ namespace DPMiner
                 Func<int, bool> f = i =>
                 {
                     if (i <= j)
-                        return matrix[i, j] == Relationships.preceder;
+                        return matrix[i, j] == Relationships.descend;
                     else
-                        return matrix[j, i] == Relationships.descend;
+                        return matrix[j, i] == Relationships.preceder;
                 };
                 return Enumerable.All<int>(set, f);
 
@@ -131,35 +163,37 @@ namespace DPMiner
 	        	List<int> lasts = new List<int>();
 	        	foreach(int[] trace in log)
 	        	{
-	                        first =  trace[0];
-	                        last = trace[trace.Length -1];
-	                        if(!firsts.Contains(first))
-	                        	firsts.Add(first);
-	                        if(!lasts.Contains(last))
-	                        	lasts.Add(last);
+                    if (trace.Count() == 0)
+                        continue;
+	                first =  trace[0];
+	                last = trace[trace.Length -1];
+	                if(!firsts.Contains(first))
+	                    firsts.Add(first);
+	                if(!lasts.Contains(last))
+	                    lasts.Add(last);
 	        	}
 	        	relation = DigRelationships (log);
 	        	structure=DigRelation(relation);
 	        	relation = null;
-                	List<Tuple<List<int>, List<int>>> moves = GetMoves(structure);
-                        places = moves.Count() + 2;
-                        int[,] transitions = new int[size,places];
-                        foreach(int f in firsts)
-                        	transitions[f,0] = -1;
-                        foreach(int l in lasts)
-                        	transitions[l, places - 1 ]=1;
-                        for(int j=1; j<places-1;j++)
-                         {
-                           List<int> sources = moves[j-1].Item1;
-                           List<int> destanations = moves[j - 1].Item2;
-                           foreach(int source in sources)
-                           	transitions[source, j] = -1;
-                           foreach(int dest in destanations)
-                           	transitions[dest, j] = 1;
-                         }
-                         PetriNet pn = new PetriNet(places, size);
-                         pn.setTransitions(transitions).Do(p => pn=p, ex);
-                         return pn;
+                List<Tuple<List<int>, List<int>>> moves = GetMoves(structure);
+                places = moves.Count() + 2;
+                int[,] transitions = new int[size,places];
+                foreach(int f in firsts)
+                    transitions[f,0] = -1;
+                foreach(int l in lasts)
+                    transitions[l, places - 1 ]= 1;
+                for(int j=1; j<places-1;j++)
+                    {
+                    List<int> destinations = moves[j-1].Item1;
+                    List<int> sources = moves[j - 1].Item2;
+                    foreach(int source in sources)
+                        transitions[source, j] = 1;
+                    foreach(int dest in destinations)
+                        transitions[dest, j] = -1;
+                    }   
+                    PetriNet pn = new PetriNet(places, size);
+                    pn.setTransitions(transitions).Do(p => pn=p, ex);
+                    return pn;
 	   	}
         private void ex()
     {
@@ -180,10 +214,10 @@ namespace DPMiner
 	   		{
                 return parent.DigRelation(matrix);
 	   		}
-	   		public List<List<int>> TestSetConstructor(int limit, Func<List<int>,int,bool> predicat)
-	   		{
-                return parent.GetAllSuchThat(limit, predicat);
-	   		}
+            //public List<List<int>> TestSetConstructor(int limit, Func<List<int>,int,bool> predicat)
+            //{
+            //    return parent.GetAllSuchThat(limit, predicat);
+            //}
 	   		private List<Tuple<List<int>,List<int>>> TestGetMoves(Relationships[,] matrix )
 	   		{
 	   			return parent.GetMoves(matrix);

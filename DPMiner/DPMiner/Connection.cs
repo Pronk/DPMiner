@@ -9,7 +9,7 @@ namespace DPMiner
 {
     internal  static class Connection
     {
-        static bool offline;
+        static bool offline = true;
         static string source="";
         static string db = "";
         static string username = "";

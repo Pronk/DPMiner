@@ -83,11 +83,11 @@
     </Compile>
     <Compile Include="ProcessLogic.cs" />
     <Compile Include="Relationship.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Miner.cs" />
     <Compile Include="Petri.cs" />
@@ -105,8 +105,8 @@
     <Compile Include="WaitScreen.cs">
       <SubType>Component</SubType>
     </Compile>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormForConnection.resx">
       <DependentUpon>FormForConnection.cs</DependentUpon>

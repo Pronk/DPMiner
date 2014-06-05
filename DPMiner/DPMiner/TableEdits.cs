@@ -278,7 +278,8 @@ namespace DataVault
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new System.Drawing.Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new System.Drawing.Size(420, 175);
+
+            this.Size = new System.Drawing.Size(420, parent.Height() - 280);
             this.TabIndex = 0;
             AddField(hub.Name, "Name:", out name);
             AddField(hub.ID.ToString(), "Key:", out bis, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, hub.ID.Roles, out keyRoles);
@@ -295,11 +296,12 @@ namespace DataVault
             Clear();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+
             this.AutoScroll = false;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new System.Drawing.Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new System.Drawing.Size(420, 175);
+            this.Size = new System.Drawing.Size(420, parent.Height() - 280);
             this.TabIndex = 0;
             AddField("", "Name:", out name);
             AddField("", "Key:", out bis, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, out keyRoles);
@@ -376,7 +378,7 @@ namespace DataVault
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new Size(420, 175);
+            this.Size = new Size(420, parent.Height() - 280);
             this.TabIndex = 0;
             AddField(link.Name, "Name:", out name);
             AddField(link.Key.ToString(), "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, link.Key.Roles, out keyRoles);
@@ -406,18 +408,19 @@ namespace DataVault
             List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+            
             this.AutoScroll = true;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "HubControls";
-            this.Size = new Size(430, 175);
+            this.Size = new Size(430, parent.Height() - 280);
             this.TabIndex = 0;
             AddField("", "Name:", out name);
             AddField("", "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, out keyRoles);
             AddField("", "TimeStamp:", out time, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.fkey, FieldProperty.key }, out timeRoles);
             FKEditor fk;
             RoleSelector fkRole;
-            AddFkey("", "Hub " + n.ToString() + ":",  TableType.Hub, out fk,
+            AddFkey("", "Hub " + n.ToString() + ":", TableType.Hub, out fk,
                 new HashSet<FieldProperty> { FieldProperty.fkey }, new HashSet<FieldProperty> { FieldProperty.key },  out fkRole);
             hubKeys.Add(fk);
             fKeyRoles.Add(fkRole);
@@ -521,14 +524,14 @@ namespace DataVault
             Clear();
             Satelite sat = table as Satelite;
             DataField[] fields = sat.Content();
-            List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+           
             this.AutoScroll = false;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "satControls";
-            this.Size = new Size(420, 175);
+            this.Size = new Size(420, parent.Height() - 280);
             this.TabIndex = 0;
             AddField(sat.Name, "Name:", out name);
             AddField(sat.Key.ToString(), "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, sat.Key.Roles, out keyRoles);
@@ -568,14 +571,14 @@ namespace DataVault
             Controls.Clear();
             measures.Clear();
             Clear();
-            List<Point> movables = new List<Point>();
             this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+          
             this.AutoScroll = false;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
             this.Name = "satControls";
-            this.Size = new Size(420, 175);
+            this.Size = new Size(420, parent.Height() - 280);
             this.TabIndex = 0;
             AddField("", "Name:", out name);
             AddField("", "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey }, out keyRoles);
@@ -583,7 +586,7 @@ namespace DataVault
             AddFkey("", "Link:", TableType.Link, out link, new HashSet<FieldProperty> { FieldProperty.fkey }, new HashSet<FieldProperty> { FieldProperty.key }, out fKeyRoles);
             TextBox mes;
             RoleSelector mesRole;
-            AddField("", "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey },  out mesRole);
+            AddField("", "Measure " + n.ToString() + ":", out mes, new HashSet<FieldProperty> { }, new HashSet<FieldProperty> { FieldProperty.key, FieldProperty.fkey }, out mesRole);
             measures.Add(mes);
             mesRoles.Add(mesRole);
             n++;
@@ -710,14 +713,14 @@ namespace DataVault
             Controls.Clear();
             measures.Clear();
             mesRoles.Clear();
-            //this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            //| System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
-            Dock = DockStyle.Fill;
+            this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+           | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+            
             this.AutoScroll = true;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
-            this.Name = "HubControls";
-            //this.Size = new Size(420, parent.Height() - 50);
+            this.Name = "RefControls";
+            this.Size = new Size(420, parent.Height() - 280);
             this.TabIndex = 0;
             Reference reference = table as Reference;
             AddField(reference.Name, "Name:", out name);
@@ -746,14 +749,14 @@ namespace DataVault
             measures.Clear();
             controlsPanel = null;
             mesRoles.Clear();
-            //this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            //| System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
-            Dock = DockStyle.Fill;
+            this.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Right) | AnchorStyles.Left));
+           
             this.AutoScroll = true;
             this.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Location = new Point(1, 30);
-            this.Name = "HubControls";
-           // this.Size = new Size(420, parent.Height() - 50);
+            this.Name = "RefControls";
+            this.Size = new Size(420, parent.Height() - 280);
             this.TabIndex = 0;
             AddField("", "Name:", out name);
             AddField("", "Key:", out sur, new HashSet<FieldProperty> { FieldProperty.key }, new HashSet<FieldProperty> { FieldProperty.fkey },  out keyRoles);

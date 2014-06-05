@@ -16,17 +16,23 @@ namespace Petri
         IPetriControl control;
         IVisualSet visuals;
         Panel canvus;
-        bool select = true;
+        Control immit;
+        bool select = false;
         BackgroundWorker bw;
-        public PetriView(IPetriNet model, Alphabeth language )
+        public PetriView(IPetriNet model, Alphabeth language, Control parent )
         {
-             control = model.GetControls();
-             visuals = model.GetView(language);
-
+            control = model.GetControls();
+            visuals = model.GetView(language);
+            Parent = parent;
             canvus = new Panel();
             canvus.Dock = DockStyle.Fill;
+            canvus.Size = new Size(10000, 10000);
             canvus.BackColor = Color.White;
             canvus.AutoScroll = true;
+            canvus.VerticalScroll.Enabled = true;
+            canvus.VerticalScroll.Visible = true;
+            canvus.HorizontalScroll.Enabled = true;
+            canvus.VerticalScroll.Enabled = true;
             canvus.Paint += Draw;
             canvus.MouseClick += Interact;
             Parent.KeyDown += Drop;
@@ -44,12 +50,13 @@ namespace Petri
             button.Height = 20;
             button.Dock = DockStyle.Top;
             cPanel.Controls.Add(button);
+            immit = button;
 
             button = new Button();
             button.Text = "Reset";
             button.Name = "buttonReset";
             button.Height = 20;
-            button.Click += (o, e) => control.Reset();
+            button.Click += (o, e) => { control.Reset(); visuals.Update();  canvus.Refresh(); };
             button.Dock = DockStyle.Top;
             cPanel.Controls.Add(button);
 
@@ -78,7 +85,7 @@ namespace Petri
                 else
                 {
                     Int32 n = visuals.Code();
-                    if(n!= -1 )
+                    if(n == -1 )
                         return;
                     if(control.TryFire(n))
                     {
@@ -152,7 +159,7 @@ namespace Petri
 
             canvus.MouseClick -= Interact;
 
-            bw.RunWorkerAsync();
+            bw.RunWorkerAsync(control);
             
         }
 
@@ -160,10 +167,10 @@ namespace Petri
         {
             bw.CancelAsync();
 
-            Button clicked = o as Button;
-            clicked.Click += BeginImmitate;
-            clicked.Click -= EndImmitate;
-            clicked.Text = "Immitate";
+           
+            immit.Click += BeginImmitate;
+            immit.Click -= EndImmitate;
+            immit.Text = "Immitate";
 
             canvus.MouseClick += Interact;
         }

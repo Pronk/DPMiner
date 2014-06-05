@@ -96,7 +96,7 @@ namespace Logic
         {
             get { return condition; }
         }
-        public bool isHappened(Dictionary<string, bool> values)
+        public bool HasHappened(Dictionary<string, bool> values)
         {
             return condition.Eval(values);
         }
