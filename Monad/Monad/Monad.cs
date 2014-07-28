@@ -24,7 +24,7 @@ namespace Monad
 		public abstract  y  FinalTransform<y> (Func<t,y> function, y otherwise);
         
 	}
-	public class Maybe<t>:Monad<t>
+	public class Maybe<t>:Monad<t>программирование
 	{
 		
         protected Maybe ()
@@ -108,4 +108,49 @@ namespace Monad
 
 		}
 	}
+	public class Or<l,r>
+	{
+		private object load;
+		private bool right;
+		private Or(object load,bool right )
+		{
+			this.load = load;
+			this.right = right;
+		}
+		public static  Or<l,r> Left(l member)
+		{
+			return new Or(member, false);	
+		}
+		public static  Or<l,r> Right(r member)
+		{
+			return new Or(member, true);	
+		}
+		public y Elimination<y> (Func<l,y> f,Func<r,y> g)
+		{
+			if(right)
+				return g(load as r);
+			return f(load as l);
+		}
+		public Or<x,y> Transform<x,y> (Func<l,x> f, Func<r,y> g)
+		{
+			if(right)
+				return Or<x,y>.Right(g(load as r));
+			return Or<x, y>.Left(f(load as l));
+		}
+		public void Do (Action<l> a, Action<r> b)
+		{
+			if(right)
+				b(load as r);
+			else
+				a(load as l);
+		}
+		public Type Type ()
+		{
+			if(right)
+				return typeof(r);
+			return typeof(l);
+		}
+		
+	}
+	
 }
