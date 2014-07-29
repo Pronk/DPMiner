@@ -233,6 +233,7 @@ namespace Monad
 	public class N
 	{
 		byte[] memory;
+		//todo : Long arithmetics
 		public byte[] Value()
 		{
 			return memory;
@@ -319,6 +320,7 @@ namespace Monad
 	{
 		Func<N,t> def;
 		N order;
+		//todo : Lazy evaluation
 		public Order(Func<N,t> f)
 		{
 		 def = f;
@@ -337,13 +339,31 @@ namespace Monad
 		{
 			return new Order<t> (def, order.Next());
 		}
+		public Order<t> Reset()
+		{
+			return new Order<t> ( def, new N() );
+		}
 		public Order<y> Transform (Func<t,y> f)
 		{
 			return new Order<t> ((n)=>f(def(n)), order)
 		}
-		public t  this[N index]
+		public t this[N index]
 		{
 			return def(index);
 		}
+		public y PrRecursion<y>(Func<y,t,y> f, N start, y iter )
+		{
+			iter2 = f(iter,def(start));
+			return start.Preceder().FinalTransform<y>(n => PrRecursion(f,n,iter2), ()=> iter2);
+		}
+		public y PrRecursion<y>(Func<y,t,y> f, N start, y iter, Func<y,bool> breaker )
+		{
+			iter2 = f(iter,def(start));
+			if(breaker(iter))
+				return iter;
+			return start.Preceder().FinalTransform<y>(n => PrRecursion(f,n,iter2), ()=> iter2);
+		}
+		
+		
 	}
 }
